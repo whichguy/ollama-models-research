@@ -1,9 +1,26 @@
 # Ollama Models Research — 2026-07 Refresh
 
-**Generated:** 2026-07-18  
+**Generated:** 2026-07-18 (validated same-day; see callout below)  
 **Hardware target:** Apple M5 Max · 128 GB unified memory · 614 GB/s bandwidth  
-**Research window:** Last 60 days (2026-05-18 → 2026-07-18)  
-**First run** — no prior refresh file to diff against.
+**Research window:** Last 60 days (2026-05-18 → 2026-07-18)
+
+> **Diffs from previous refresh (see commit `f5cfdda`, 2026-07-18):** No role
+> picks changed. Two factual corrections surfaced from a same-day
+> spot-check:
+> 1. **Laguna XS 2.1 resident size corrected 17 GB → 20 GB** (Q4_K_M) —
+>    verified against the official Ollama tag page
+>    ([ollama.com/library/laguna-xs-2.1/tags](https://ollama.com/library/laguna-xs-2.1/tags)),
+>    which lists `laguna-xs-2.1:q4_K_M` at 20 GB, not the ~17 GB estimate
+>    used in the original run. Applied throughout §1, §3.2, §4.1, §5, §6.
+> 2. **Kimi K2.7 Code GGUF availability corrected** — the original run's
+>    claim "no GGUF exists yet" is superseded: community GGUF builds
+>    (`unsloth/Kimi-K2.7-Code-GGUF`, `mradermacher/Kimi-K2.7-Code-GGUF`) now
+>    exist. This does **not** change its cloud-only classification — even
+>    Q4 quantization is ~585 GB, still 4–5x beyond the 128 GB envelope.
+>
+> This was a mechanics-validation re-run testing the new git-history-driven
+> commit process (see `COMMIT_FORMAT.md`), not a full 60-day research
+> sweep — the underlying research window is unchanged from the original run.
 
 ---
 
@@ -35,7 +52,7 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 ### Runtime Notes
 
 - **MLX vs llama.cpp:** Apple's native MLX framework delivers 40–80% higher throughput than llama.cpp on Apple Silicon. Ollama v0.32.0 (Jul 11, 2026) now bundles an MLX engine for Apple Silicon — use it for maximum speed. `mlx_lm` directly gives the most headroom for speed-critical workflows.
-- **MoE-A3B behaviour:** MoE models like Laguna XS 2.1 and Qwen 3.5 30B-A3B load ~17 GB of full weights but activate only ~3B parameters per token, giving 30B-class quality at ~56–58 tok/s on M5 Max. This is the highest quality-per-GB pattern available in Ollama today.
+- **MoE-A3B behaviour:** MoE models activate only ~3B parameters per token despite loading much larger full weight sets, giving 30B-class quality at high tok/s. Qwen 3.5 30B-A3B loads ~17 GB at Q4; Laguna XS 2.1 loads ~20 GB at Q4_K_M (confirmed via [official Ollama tag page](https://ollama.com/library/laguna-xs-2.1/tags), corrected from an earlier ~17 GB estimate). This remains the highest quality-per-GB pattern available in Ollama today.
 - **Ollama v0.32.0 uplift:** Gemma 4 runs ~90% faster in this release due to multi-token prediction (MTP) and automatic hardware tuning. Pull the latest Ollama before benchmarking any Gemma 4 variant.
 - **KV-cache headroom:** At 128 GB, plan for ~10–18 GB reserved for macOS + KV-cache at long context. Practical ceiling for a single loaded model is ~110 GB.
 - **M5 Max vs M4 Max:** The M5 Max delivers ~28% higher tok/s across all model sizes vs M4 Max (600 GB/s → 614 GB/s bandwidth, improved GPU, redesigned Neural Engine).
@@ -45,7 +62,7 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 | Model | Why it won't fit |
 |-------|------------------|
 | Llama 4 Maverick (400B total) | Q4 ≈ 200 GB — exceeds 128 GB envelope |
-| Kimi K2.7 Code (1T parameters) | No GGUF / quantized build exists yet; cloud-only |
+| Kimi K2.7 Code (1T parameters) | Community GGUF builds exist (Unsloth, mradermacher) but even Q4 (UD-Q4_K_XL) is ~585 GB — 4–5x the 128 GB envelope; no first-class Ollama library tag |
 | DeepSeek-V3 full (671B MoE, 37B active) | Q4 ≈ 170 GB — borderline, likely OOM with KV-cache |
 | Any 700B+ total-parameter model | Exceeds envelope at any practical quant |
 
@@ -58,7 +75,7 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 | Model | Family | Released | Why it matters |
 |-------|--------|----------|----------------|
 | **Laguna XS 2.1** | Poolside (MoE 33B/3B active) | Jul 2, 2026 | 70.9% SWE-bench Verified; highest-scoring Ollama-available model per GB in its size tier; Apache 2.0 |
-| **Kimi K2.7 Code** | Moonshot AI (1T MoE) | Jun 2026 | 30% lower thinking-token usage vs K2.6; cloud-only (no GGUF yet); watch for quantized builds |
+| **Kimi K2.7 Code** | Moonshot AI (1T MoE) | Jun 2026 | 30% lower thinking-token usage vs K2.6; community GGUF builds now exist but model is still cloud-only at ~585 GB even at Q4 |
 | **Gemma 4 12B Unified** | Google (dense 12B) | Jun 2026 | Fills mid-size gap in Gemma lineup; natively multimodal; 77.2% MMLU Pro |
 | **Ollama v0.32.0** | Platform release | Jul 11, 2026 | Native MLX engine on Apple Silicon; agentic "code + delegate" mode; Gemma 4 ~90% faster |
 
@@ -92,10 +109,12 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 
 | | Model | Q4 resident | Key benchmarks | Ollama tag |
 |-|-------|------------|----------------|------------|
-| **Top pick** | Laguna XS 2.1 | ~17 GB | SWE-bench Verified 70.9%; SWE-bench Multilingual 63.1%; 256K ctx | `laguna-xs-2.1` |
+| **Top pick** | Laguna XS 2.1 | ~20 GB | SWE-bench Verified 70.9%; SWE-bench Multilingual 63.1%; 256K ctx | `laguna-xs-2.1:q4_K_M` |
 | **Smaller pick** | Devstral Small 2 | ~14 GB | SWE-bench Verified 68.0%; 256K ctx; Apache 2.0 | `devstral-2:small` |
 
 **Rationale:** Laguna XS 2.1 (Poolside, Jul 2, 2026) is a 33B/3B-active MoE that scores 70.9% on SWE-bench Verified — the highest of any Ollama-available model in its memory tier as of July 2026. MoE sparsity keeps generation fast (~56 tok/s via MLX) while the 256K context window handles large multi-file codebases. Devstral Small 2 (Mistral, 24B dense) is nearly as capable at 68.0% and is more production-battle-tested in agentic scaffolds (OpenHands, SWE-agent). Devstral 2 full (123B, 72.2% SWE-bench) is the strongest open-weight coder but requires ~65 GB Q4 — it fits in 128 GB alone but leaves little room for concurrent models.
+
+*(Resident size corrected 2026-07-18: the official Ollama tag page lists `laguna-xs-2.1:q4_K_M` at 20 GB — see the diffs callout above.)*
 
 ### 3.3 Code Debugger
 *Reasoning / chain-of-thought, root-cause analysis, math-heavy debugging.*
@@ -154,7 +173,7 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 Three patterns consistently pay off on M5 Max 128 GB:
 
 ### 4.1 MoE-A3B Models
-Models like **Laguna XS 2.1** (33B/3B active) and **Qwen 3.5 30B-A3B** (30B/3B active) load the full parameter set (~17 GB at Q4) but activate only ~3B parameters per token during inference. The result: 30B-class output quality at ~56–58 tok/s on M5 Max — faster than a dense 27B at the same quant, with quality competitive above its weight class. This is the highest quality-per-GB pattern in the current Ollama library.
+Models like **Laguna XS 2.1** (33B/3B active, ~20 GB at Q4_K_M) and **Qwen 3.5 30B-A3B** (30B/3B active, ~17 GB at Q4) load a much larger full weight set but activate only ~3B parameters per token during inference. The result: 30B-class output quality at ~56–58 tok/s on M5 Max — faster than a dense 27B at the same quant, with quality competitive above its weight class. This is the highest quality-per-GB pattern in the current Ollama library.
 
 ### 4.2 Distilled Reasoning Models
 **DeepSeek-R1-Distill-Qwen-32B** transfers chain-of-thought behaviour from a 671B teacher into a 32B student (20 GB at Q4). It achieves MATH scores that beat many naive 70B models, at twice the speed and half the memory. For debugging and reasoning tasks, the distill is sufficient and the correct choice — you don't need to reach for a 70B.
@@ -181,11 +200,11 @@ Ollama loads and unloads models from unified memory on demand. The full inventor
 | Qwen3.6-27B | `qwen3.6:27b` | ~17 GB | Generalist + judge |
 | DeepSeek-R1-Distill-Qwen-32B | `deepseek-r1:32b` | ~20 GB | Code debugger / reasoning |
 | Devstral Small 2 | `devstral-2:small` | ~14 GB | Code implementer (battle-tested) |
-| Laguna XS 2.1 | `laguna-xs-2.1` | ~17 GB | Code implementer (higher SWE-bench) |
+| Laguna XS 2.1 | `laguna-xs-2.1:q4_K_M` | ~20 GB | Code implementer (higher SWE-bench) |
 | Gemma 4 12B Unified | `gemma4:12b` | ~8 GB | Fast general + doc assistant |
 | Gemma 4 E4B | `gemma4:e4b` | ~5 GB | Tiny vision / audio / video |
 
-**Total inventory size on disk:** ~136 GB (can all be pulled; Ollama evicts from RAM as needed).
+**Total inventory size on disk:** ~139 GB (can all be pulled; Ollama evicts from RAM as needed). *(Corrected from ~136 GB per the Laguna XS 2.1 sizing fix.)*
 
 ### Recommended Concurrent Pairs
 
@@ -201,7 +220,7 @@ Ollama loads and unloads models from unified memory on demand. The full inventor
 | Model | Reason |
 |-------|--------|
 | Llama 4 Maverick (400B total) | Q4 ≈ 200 GB — hard OOM |
-| Kimi K2.7 Code (1T params) | No GGUF exists; cloud-only |
+| Kimi K2.7 Code (1T params) | Community GGUF exists but ~585 GB even at Q4 — cloud-only regardless |
 | Devstral 2 full (123B) | Fits solo (~65 GB) but leaves < 10 GB for KV-cache at long context; borderline |
 
 ---
@@ -210,23 +229,23 @@ Ollama loads and unloads models from unified memory on demand. The full inventor
 
 ```bash
 # --- Pull models ---
-ollama pull qwen3.6:27b          # ~17 GB  — generalist / judge / debugger fallback
-ollama pull llama4:scout          # ~55 GB  — orchestrator + vision
-ollama pull deepseek-r1:32b       # ~20 GB  — reasoning / debugging
-ollama pull devstral-2:small      # ~14 GB  — code implementation
-ollama pull laguna-xs-2.1         # ~17 GB  — code implementation (alt, higher SWE-bench)
-ollama pull gemma4:12b            # ~8 GB   — fast general
-ollama pull gemma4:e4b            # ~5 GB   — tiny vision/audio/video
+ollama pull qwen3.6:27b            # ~17 GB  — generalist / judge / debugger fallback
+ollama pull llama4:scout            # ~55 GB  — orchestrator + vision
+ollama pull deepseek-r1:32b         # ~20 GB  — reasoning / debugging
+ollama pull devstral-2:small        # ~14 GB  — code implementation
+ollama pull laguna-xs-2.1:q4_K_M    # ~20 GB  — code implementation (alt, higher SWE-bench)
+ollama pull gemma4:12b              # ~8 GB   — fast general
+ollama pull gemma4:e4b              # ~5 GB   — tiny vision/audio/video
 
 # --- Verify resident memory after load ---
 # (run `ollama ps` while the model is active to confirm)
-# qwen3.6:27b      → 16–18 GB
-# llama4:scout     → 52–57 GB
-# deepseek-r1:32b  → 19–21 GB
-# devstral-2:small → 13–15 GB
-# laguna-xs-2.1    → 15–18 GB
-# gemma4:12b       → 7–9 GB
-# gemma4:e4b       → 4–6 GB
+# qwen3.6:27b          → 16–18 GB
+# llama4:scout         → 52–57 GB
+# deepseek-r1:32b      → 19–21 GB
+# devstral-2:small     → 13–15 GB
+# laguna-xs-2.1:q4_K_M → 18–21 GB
+# gemma4:12b           → 7–9 GB
+# gemma4:e4b           → 4–6 GB
 
 # --- Smoke tests ---
 
@@ -248,7 +267,7 @@ ollama run deepseek-r1:32b "What is the derivative of x^3 * sin(x)? Show all ste
 ollama run devstral-2:small "Implement a Python function that validates an email address using a regex."
 
 # Agentic coding alt (Laguna XS 2.1)
-ollama run laguna-xs-2.1 "Refactor this function to handle None inputs gracefully: def get_len(s): return len(s)"
+ollama run laguna-xs-2.1:q4_K_M "Refactor this function to handle None inputs gracefully: def get_len(s): return len(s)"
 
 # Vision (Gemma 4 E4B) — requires an image file
 # ollama run gemma4:e4b "Describe what you see in this image." --image /path/to/screenshot.png
@@ -282,9 +301,12 @@ ollama run gemma4:26b "Extract all column headers and row values from this table
 - [Devstral 2 on Ollama](https://ollama.com/library/devstral-2)
 - [Introducing Laguna XS 2.1 — Poolside](https://poolside.ai/blog/introducing-laguna-xs-2-1)
 - [Laguna XS 2.1 on Ollama](https://ollama.com/library/laguna-xs-2.1)
+- [Laguna XS 2.1 Tags — Ollama](https://ollama.com/library/laguna-xs-2.1/tags)
 - [Laguna XS 2.1 on Hugging Face](https://huggingface.co/poolside/Laguna-XS-2.1)
 - [Kimi K2.7 Code on Ollama](https://ollama.com/library/kimi-k2.7-code)
 - [Kimi K2.7 Complete Guide — Codersera](https://codersera.com/blog/kimi-k2-7-complete-guide-2026/)
+- [Kimi K2.7 Code GGUF — Unsloth Documentation](https://unsloth.ai/docs/models/kimi-k2.7-code)
+- [unsloth/Kimi-K2.7-Code-GGUF — Hugging Face](https://huggingface.co/unsloth/Kimi-K2.7-Code-GGUF)
 - [The Llama 4 Herd — Meta AI Blog](https://ai.meta.com/blog/llama-4-multimodal-intelligence/)
 - [Llama 4 Guide: Running Scout and Maverick Locally — InsiderLLM](https://insiderllm.com/guides/llama-4-guide-scout-maverick/)
 - [Llama 4 Complete Guide — AIMadeTools](https://www.aimadetools.com/blog/llama-4-complete-guide/)
