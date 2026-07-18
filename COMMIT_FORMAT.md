@@ -7,21 +7,40 @@ only works if commit bodies are **structured and greppable**, not prose —
 so every refresh commit MUST include a machine-parseable `ROLE PICKS` block
 in addition to the human-readable narrative sections.
 
+See `OPERATIONS.md` for environment-specific execution notes (GitHub auth
+fallback, local-branch mismatches, the fact that no session-level scheduler
+governs this routine) — read it alongside this file, not instead of it.
+
 ---
 
 ## Step 0 (every run, before research): pull history
 
-Run this before touching the research scope:
+Run this before touching the research scope. Filter on the commit
+**subject**, not on file paths — path filtering also matches docs-only
+commits (e.g. spec updates to this file) that have no `ROLE PICKS` block and
+just add noise to the window:
 
 ```bash
-git log -20 --format='%H %ad%n%s%n%b%n===END===' --date=short -- 'ollama-models-*.md' COMMIT_FORMAT.md
+git log -20 --grep='^refresh:' --format='%H %ad%n%s%n%b%n===END===' --date=short
 ```
 
 From the returned commits:
-1. Take the **most recent `ROLE PICKS` block** — that's current believed state per role.
-2. Walk backward through the other commits to find, per role, the commit where that pick last *changed* (i.e. scan for the most recent prior line with a different model for the same role) — note that commit's **short SHA** (first 7 chars of `%H`) alongside its date and the matching `CONCLUSION` line.
-3. Build this into the `PRIOR STATE` section of the new commit (below), citing the SHA — this is the diff basis, replacing the old "find most recent prior ollama-models-*.md file" heuristic, and it is authoritative even if a file was later corrected without a matching filename change.
-4. If fewer than 20 `refresh:` commits exist (or none), say so explicitly — do not fabricate a baseline.
+1. Take the **most recent commit that actually contains a `ROLE PICKS`
+   block** — skip any matched commit that lacks one (defensive: a stray
+   commit could match the grep without following the template). That block
+   is the current believed state per role.
+2. Walk backward through the remaining commits to find, per role, the
+   commit where that pick last *changed* (the most recent prior line with a
+   different model for the same role) — note that commit's **short SHA**
+   (first 7 chars of `%H`) alongside its date and the matching `CONCLUSION`
+   line.
+3. Build this into the `PRIOR STATE` section of the new commit (below),
+   citing the SHA — this is the diff basis, replacing the old "find most
+   recent prior ollama-models-*.md file" heuristic, and it is authoritative
+   even if a file was later corrected without a matching filename change.
+4. If fewer than 20 `refresh:` commits exist (or none have a `ROLE PICKS`
+   block), say so explicitly — do not fabricate a baseline. See "Baseline
+   anchor" below for this repo's specific history.
 
 **SHA-citation rule:** any time this run's commit references a prior finding,
 assumption, or pick as a reason for something (in `PRIOR STATE`, `VALIDATED`,
@@ -78,6 +97,12 @@ Subject line carries `N picks changed` (count of `changed from` lines in
 `ROLE PICKS`) so `git log --oneline` alone shows which runs were consequential
 without opening the body.
 
+Process-only commits (fixing this spec, backfilling history, tooling notes —
+no new research) still use the `refresh: YYYY-MM-DD` subject prefix so
+Step 0's grep finds them, but should say so plainly in `INTENT` and set
+`LEARNED`/`VALIDATED`/`DISAVOWED` to describe the process finding rather than
+model research, e.g. `LEARNED: - none — process fix only`.
+
 ---
 
 ## Why `ROLE PICKS` exists as a separate block
@@ -90,7 +115,23 @@ on that role's line, and vice versa.
 
 ---
 
-## Example (2026-07-18 initial run, reformatted)
+## Baseline anchor for this repo
+
+The very first research commit, `09bba13` (2026-07-18), predates this spec
+entirely — its message is the bare subject line `refresh: 2026-07-18` with
+no body, because `COMMIT_FORMAT.md` didn't exist yet when it was written.
+Step 0's grep will match its subject but find no `ROLE PICKS` block in it —
+per the skip rule above, ignore it and keep walking.
+
+The commit that added this sentence (see the repo's `refresh:` history
+around 2026-07-18, subject containing "baseline backfill") retroactively
+supplies the first real, parseable `ROLE PICKS` block, carrying forward the
+exact picks from `09bba13`'s research unchanged. Treat **that** commit, not
+`09bba13`, as the baseline anchor for `PRIOR STATE` going forward.
+
+---
+
+## Example (2026-07-18 initial research run)
 
 ```
 refresh: 2026-07-18 — 0 picks changed
@@ -148,18 +189,5 @@ picks are first-assignment, not yet tested against a prior baseline.
 Refs: ollama-models-2026-07.md
 ```
 
-Note: this example predates the SHA-citation rule (it was the first run, so
-`PRIOR STATE` had nothing to cite). The **next** refresh run's `PRIOR STATE`
-should look like:
-
-```
-PRIOR STATE (from git log, last <=20 refresh commits)
-generalist: Qwen3.6-27B (since 2026-07-18, see 09bba13)
-code-implementer: Laguna XS 2.1 (since 2026-07-18, see 09bba13)
-...
-```
-
-— `09bba13` being the actual short SHA of the 2026-07-18 refresh commit that
-first set these picks, so anyone reading it can jump straight to
-`https://github.com/whichguy/ollama-models-research/commit/09bba13` and see
-the original reasoning.
+(Note: the actual `09bba13` commit predates this spec and does not contain
+this body — see "Baseline anchor" above.)
