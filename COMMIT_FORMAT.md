@@ -30,11 +30,20 @@ From the returned commits:
    block** — skip any matched commit that lacks one (defensive: a stray
    commit could match the grep without following the template). That block
    is the current believed state per role.
-2. Walk backward through the remaining commits to find, per role, the
-   commit where that pick last *changed* (the most recent prior line with a
-   different model for the same role) — note that commit's **short SHA**
-   (first 7 chars of `%H`) alongside its date and the matching `CONCLUSION`
-   line.
+2. For each role, walk backward through the remaining commits to find the
+   **oldest commit in the unbroken streak of the current value** — keep
+   walking past every commit that still shows the same model for that role,
+   and stop at the first commit that shows a *different* model (or has no
+   `ROLE PICKS` block at all). Cite the commit **one step newer** than that
+   stopping point — the commit where the current value first appeared —
+   never the merely most-recent commit that restated "unchanged."
+   **Worked example:** if `f5cfdda` first sets `code-implementer: Laguna XS
+   2.1`, and `bea2b59`/`c37448d`/`4262e6d` all later say
+   `code-implementer: Laguna XS 2.1 (unchanged)`, the correct citation is
+   still `f5cfdda` — not the most recent of the three. Citing the wrong one
+   defeats the SHA-citation rule's purpose (see below): a reader clicking
+   through should land on the commit that actually explains *why*, not on
+   another commit that just says "still true."
 3. Build this into the `PRIOR STATE` section of the new commit (below),
    citing the SHA — this is the diff basis, replacing the old "find most
    recent prior ollama-models-*.md file" heuristic, and it is authoritative
@@ -143,14 +152,22 @@ The very first research commit, `09bba13` (2026-07-18), predates this spec
 entirely — its message is the bare subject line `refresh: 2026-07-18` with
 no body, because `COMMIT_FORMAT.md` didn't exist yet when it was written.
 Step 0's grep will match its subject but find no `ROLE PICKS` block in it —
-per the skip rule above, ignore it and keep walking.
+per the skip rule above, ignore it and keep walking to the next-oldest
+commit that has one. Do not hardcode which SHA that is in this document —
+it will change as history grows; Step 0's algorithm finds it dynamically
+every time, which is the entire point of making it a walk rather than a
+fixed pointer.
 
-The commit `f5cfdda` (2026-07-18, subject containing "baseline backfill")
-retroactively supplies the first real, parseable `ROLE PICKS` block,
-carrying forward the exact picks from `09bba13`'s research unchanged. Treat
-**that** commit as the practical starting point for `PRIOR STATE`, not
-`09bba13` — later commits (`bea2b59` and after) build on it normally via
-Step 0.
+**Known citation error in this repo's own history (2026-07-18):** the
+worked example above ("Baseline anchor" → `f5cfdda` originating
+`code-implementer: Laguna XS 2.1`) exists because the agent running this
+routine cited `bea2b59` instead of `f5cfdda` in two consecutive commits
+(`c37448d`, `4262e6d`) before catching the error — the ambiguous prior
+wording of Step 0 rule 2 (fixed above) was the direct cause. Those two
+commits were not rewritten (history stays immutable — see git-safety
+practice), but any future run's Step 0 walk will correctly resolve to
+`f5cfdda` regardless, since the walk-to-origin algorithm self-corrects
+independent of what any single prior commit's `PRIOR STATE` claimed.
 
 ---
 

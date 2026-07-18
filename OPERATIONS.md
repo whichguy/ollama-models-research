@@ -148,3 +148,16 @@ existing same-day draft. If one exists, make the new draft's subject and
 opening line explicitly reference it as a follow-up/re-run rather than
 leaving two identically-titled drafts with no indication of their
 relationship.
+
+## 7. Multiple same-day commits are expected during active development
+
+The routine is designed around one commit per ~10-day scheduled firing, but
+an interactive session where a human iterates with the agent (reviewing,
+requesting fixes, asking for broader research) can legitimately produce
+many `refresh:` commits on the same calendar day — this repo had 8 on
+2026-07-18 alone. This is not a malfunction and does not need to be
+squashed or cleaned up: the `N picks changed` subject convention already
+makes low-signal commits (`0 picks changed`) scannable at a glance, and
+Step 0's 20-commit window has ample headroom before same-day clusters would
+crowd out genuinely older history. If a future reviewer wonders why the log
+looks dense on one date, this is why.

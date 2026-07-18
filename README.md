@@ -26,18 +26,18 @@ bandwidth), across 7 agentic roles. Refreshed roughly every 10 days (the
 
 ## 📌 Latest refresh
 
-**2026-07-18** — 0 role picks changed. Broadened research coverage:
-Z.ai/GLM, MiniMax, and Cohere had been missing from every prior version of
-this doc despite being named in the original research scope. Added
-**GLM-5.2** and **MiniMax M3** (both currently top coding leaderboards but
-don't fit 128 GB at any practical quant — Ollama only offers `:cloud` for
-either) and **NVIDIA Nemotron 3 Super** / **Cohere North Mini Code 1.0**
-(both fit the envelope but score below current picks on directly comparable
-benchmarks). A prior same-day pass also verified every `ollama pull` tag
-against the live library and fixed 4 factual errors (`devstral-2:small` was
-an invalid tag; `llama4:scout`, `gemma4:26b`, `gemma4:e4b` sizes were
-understated). See [`ollama-models-2026-07.md`](./ollama-models-2026-07.md)
-for the full diffs callout.
+**2026-07-18** — 0 role picks changed. Process-quality review of this
+session's own commit history found a real citation bug: `PRIOR STATE`
+sections cited the *immediately preceding* commit instead of the commit
+that actually originated each pick, defeating the "land directly on the
+original reasoning" purpose of the SHA-citation rule. Fixed the ambiguous
+wording in `COMMIT_FORMAT.md` Step 0, generalized the "Baseline anchor"
+section so it stops hardcoding SHAs that go stale, and simplified this
+doc's `Generated:` header line (it had been accumulating a new descriptor
+with every same-day edit). Earlier same-day passes broadened model coverage
+(GLM-5.2, MiniMax M3, Nemotron 3 Super, Cohere North Mini Code 1.0) and
+fixed 4 tag/size errors — see
+[`ollama-models-2026-07.md`](./ollama-models-2026-07.md) for full detail.
 
 *(This section must be updated by every refresh commit — research or
 process-only — with the date and a 1–3 line summary. See the "README sync

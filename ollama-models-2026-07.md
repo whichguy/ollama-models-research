@@ -1,6 +1,6 @@
 # Ollama Models Research — 2026-07 Refresh
 
-**Generated:** 2026-07-18 (broadened same-day; see callout below)  
+**Generated:** 2026-07-18  
 **Hardware target:** Apple M5 Max · 128 GB unified memory · 614 GB/s bandwidth  
 **Research window:** Last 60 days (2026-05-18 → 2026-07-18)
 
