@@ -26,14 +26,18 @@ bandwidth), across 7 agentic roles. Refreshed roughly every 10 days (the
 
 ## 📌 Latest refresh
 
-**2026-07-18** — 0 role picks changed. Verified every `ollama pull` tag in
-the checklist directly against the live Ollama library and corrected 4
-factual errors found there: `devstral-2:small` was not a valid tag (the
-real tag is `devstral-small-2` — the old one would have failed to pull);
-`llama4:scout` was understated by 12 GB (55→67 GB); `gemma4:26b` and
-`gemma4:e4b` were also understated. None of these changed a role pick — see
-[`ollama-models-2026-07.md`](./ollama-models-2026-07.md) for the full diffs
-callout.
+**2026-07-18** — 0 role picks changed. Broadened research coverage:
+Z.ai/GLM, MiniMax, and Cohere had been missing from every prior version of
+this doc despite being named in the original research scope. Added
+**GLM-5.2** and **MiniMax M3** (both currently top coding leaderboards but
+don't fit 128 GB at any practical quant — Ollama only offers `:cloud` for
+either) and **NVIDIA Nemotron 3 Super** / **Cohere North Mini Code 1.0**
+(both fit the envelope but score below current picks on directly comparable
+benchmarks). A prior same-day pass also verified every `ollama pull` tag
+against the live library and fixed 4 factual errors (`devstral-2:small` was
+an invalid tag; `llama4:scout`, `gemma4:26b`, `gemma4:e4b` sizes were
+understated). See [`ollama-models-2026-07.md`](./ollama-models-2026-07.md)
+for the full diffs callout.
 
 *(This section must be updated by every refresh commit — research or
 process-only — with the date and a 1–3 line summary. See the "README sync

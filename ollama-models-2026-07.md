@@ -1,30 +1,40 @@
 # Ollama Models Research — 2026-07 Refresh
 
-**Generated:** 2026-07-18 (corrected same-day; see callout below)  
+**Generated:** 2026-07-18 (broadened same-day; see callout below)  
 **Hardware target:** Apple M5 Max · 128 GB unified memory · 614 GB/s bandwidth  
 **Research window:** Last 60 days (2026-05-18 → 2026-07-18)
 
-> **Diffs from previous refresh (see commit `bea2b59`, 2026-07-18):** No role
-> picks changed. This pass verified every `ollama pull` tag directly against
-> the official `ollama.com/library/<model>/tags` pages instead of secondary
-> sources, and found real errors:
-> 1. **`devstral-2:small` was not a valid Ollama tag.** The actual model is
->    named `devstral-small-2` (not a `:small` tag under a `devstral-2`
->    model) — `ollama pull devstral-2:small` would have failed outright.
->    Corrected throughout §3.2, §5, §6. Size also refined ~14 GB → ~15 GB.
-> 2. **`llama4:scout` resident size corrected 55 GB → 67 GB** (Q4) — the
->    official tags page lists it at 67 GB, not the ~55 GB estimate used
->    previously. Corrected throughout §3.4, §3.7, §5, §6, including
->    concurrent-pair and total-inventory totals.
-> 3. **`gemma4:26b` resident size corrected 15 GB → 18 GB.** Corrected in
->    §3.6 and §6.
-> 4. **`gemma4:e4b` resident size corrected 5 GB → ~10 GB** (nearly 2x the
->    original estimate) — the "fits in 6 GB" framing in §3.7 was wrong and
->    has been removed. Corrected in §3.7, §4.3, §5, §6.
+> **Diffs from previous refresh (see commit `c37448d`, 2026-07-18):** No role
+> picks changed. This pass re-ran the "cover Z.ai/GLM, MiniMax, gpt-oss"
+> requirement from the original research scope, which the first three
+> passes had missed entirely, plus checked NVIDIA Nemotron and Cohere. Four
+> real models were added to §2 that were absent from every prior version of
+> this doc:
+> 1. **GLM-5.2** (Z.ai, Jun 13, 2026) — 744B/40B-active MoE, beats GPT-5.5
+>    on several coding benchmarks — but genuinely doesn't fit 128 GB even at
+>    1–2 bit quantization (~217 GB minimum), and Ollama's only tag for it is
+>    `:cloud` (routes to Z.ai's infra, not local inference). Added to §1's
+>    "Cloud-Only" table and §2.
+> 2. **MiniMax M3** (MiniMax, Jun 1, 2026) — currently #1 on the BenchLM
+>    open-source leaderboard (Jul 17, 2026), beats GPT-5.5/Gemini 3.1 Pro on
+>    SWE-bench Pro — but the smallest usable quant is ~143 GB (Q2), still
+>    over budget, and Ollama's only tag is also `:cloud`. Added to §1 and §2.
+> 3. **NVIDIA Nemotron 3 Super** (Mar 11, 2026) — 120B/12B-active hybrid
+>    Mamba-Transformer, ~60 GB at Q4 (fits comfortably), 1M context, 2.2x
+>    GPT-OSS-120B throughput — but scores 60.47% SWE-bench Verified, below
+>    every current top/smaller pick in the code-implementer and
+>    plan-orchestrator roles. Added to §2 and §3.4 as an evaluated
+>    alternative.
+> 4. **Cohere North Mini Code 1.0** (Cohere, Jun 11, 2026) — 30B/3B-active
+>    MoE (same size class as Laguna XS 2.1), real Ollama tag
+>    (`north-mini-code-1.0`), 67.6% SWE-bench Verified — below Laguna XS
+>    2.1's 70.9%. Added to §2 and §3.2 as an evaluated alternative.
 >
-> None of these corrections change a role pick — only the sizing and tag
-> accuracy of already-correct picks. See `OPERATIONS.md` §5 for the
-> pre-publish verification rule this pass was testing.
+> All four were assessed against every relevant role's current top/smaller
+> pick; none changed a recommendation — two don't fit the 128 GB envelope at
+> any practical quant, two fit but score lower on directly comparable
+> benchmarks. See `OPERATIONS.md` for the broader-sweep context; the prior
+> commit's corrections (tag/size fixes) are unaffected by this pass.
 
 ---
 
@@ -67,6 +77,8 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 |-------|------------------|
 | Llama 4 Maverick (400B total) | Q4 ≈ 200 GB — exceeds 128 GB envelope |
 | Kimi K2.7 Code (1T parameters) | Community GGUF builds exist (Unsloth, mradermacher) but even Q4 (UD-Q4_K_XL) is ~585 GB — 4–5x the 128 GB envelope; no first-class Ollama library tag |
+| **GLM-5.2** (Z.ai, 744B/40B active MoE) | Beats GPT-5.5 on several coding benchmarks, but even 1–2 bit GGUF quants are ~217–238 GB; Ollama's only tag is `:cloud` (Z.ai-hosted, not local) |
+| **MiniMax M3** (MiniMax, ~230–428B/9.8B active MoE) | #1 on the BenchLM open-source leaderboard as of Jul 17, 2026, but the smallest usable local quant (UD-Q2_K_XL) is ~143 GB; Ollama's only tag is `:cloud` |
 | DeepSeek-V3 full (671B MoE, 37B active) | Q4 ≈ 170 GB — borderline, likely OOM with KV-cache |
 | Any 700B+ total-parameter model | Exceeds envelope at any practical quant |
 
@@ -78,10 +90,21 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 
 | Model | Family | Released | Why it matters |
 |-------|--------|----------|----------------|
-| **Laguna XS 2.1** | Poolside (MoE 33B/3B active) | Jul 2, 2026 | 70.9% SWE-bench Verified; highest-scoring Ollama-available model per GB in its size tier; Apache 2.0 |
+| **Laguna XS 2.1** | Poolside (MoE 33B/3B active) | Jul 2, 2026 | 70.9% SWE-bench Verified; highest-scoring Ollama-**locally-runnable** model per GB in its size tier; Apache 2.0 |
+| **GLM-5.2** | Z.ai (MoE 744B/40B active) | Jun 13, 2026 | 62.1 SWE-bench Pro (vs GPT-5.5's 58.6), 91.2 GPQA-Diamond, MIT license — genuinely SOTA, but doesn't fit 128 GB at any practical quant (~217 GB+) and Ollama only offers `:cloud`. **Cloud-only for this hardware — see §1.** |
+| **MiniMax M3** | MiniMax (MoE, 9.8B active) | Jun 1, 2026 | #1 on the BenchLM open-source leaderboard (Jul 17, 2026); beats GPT-5.5/Gemini 3.1 Pro on SWE-bench Pro and BrowseComp — but smallest usable local quant is ~143 GB and Ollama only offers `:cloud`. **Cloud-only for this hardware — see §1.** |
 | **Kimi K2.7 Code** | Moonshot AI (1T MoE) | Jun 2026 | 30% lower thinking-token usage vs K2.6; community GGUF builds now exist but model is still cloud-only at ~585 GB even at Q4 |
+| **Cohere North Mini Code 1.0** | Cohere (MoE 30B/3B active) | Jun 11, 2026 | 67.6% SWE-bench Verified, Apache 2.0, real Ollama tag (`north-mini-code-1.0`) — same size class as Laguna XS 2.1 but scores lower; genuinely fits and pulls locally, just not the top pick |
 | **Gemma 4 12B Unified** | Google (dense 12B) | Jun 2026 | Fills mid-size gap in Gemma lineup; natively multimodal; 77.2% MMLU Pro |
 | **Ollama v0.32.0** | Platform release | Jul 11, 2026 | Native MLX engine on Apple Silicon; agentic "code + delegate" mode; Gemma 4 ~90% faster |
+
+### Notable model evaluated just outside the 60-day window
+
+| Model | Family | Released | Why it matters |
+|-------|--------|----------|----------------|
+| **NVIDIA Nemotron 3 Super** | NVIDIA (hybrid Mamba-Transformer, 120B/12B active) | Mar 11, 2026 | ~60 GB at Q4 (fits comfortably), 1M context, 2.2x GPT-OSS-120B throughput — but 60.47% SWE-bench Verified is below every current top/smaller pick in the relevant roles. Evaluated for plan-orchestrator, not selected — see §3.4. |
+
+OpenAI's **gpt-oss** (20B/120B, MoE, released Aug 2025) was also checked per the original research scope, which names it explicitly — it predates the 60-day window by nearly a year and none of its benchmark figures found here beat current picks in any role, so it isn't tabled above. Still cited in §7 for completeness since it was explicitly in scope.
 
 ### Context: models released just outside 60-day window but shaping current picks
 
@@ -120,6 +143,8 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 
 *(Corrected 2026-07-18: the Ollama tag is `devstral-small-2`, not `devstral-2:small` — the latter does not exist and would fail to pull. See the diffs callout above.)*
 
+**Also evaluated, not selected:** Cohere North Mini Code 1.0 (Jun 11, 2026; 30B/3B-active MoE, 256K ctx, Apache 2.0, `ollama pull north-mini-code-1.0`) — same MoE-A3B size class as Laguna XS 2.1 but scores 67.6% SWE-bench Verified vs Laguna's 70.9%. GLM-5.2 and MiniMax M3 currently top coding leaderboards generally but don't fit 128 GB at any practical quant — see §1 and §2.
+
 ### 3.3 Code Debugger
 *Reasoning / chain-of-thought, root-cause analysis, math-heavy debugging.*
 
@@ -141,6 +166,8 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 **Rationale:** Llama 4 Scout (Meta, Apr 2026) offers the longest locally-runnable context window in existence at 10M tokens — orders of magnitude beyond any competitor. Its 17B active-parameter MoE architecture runs at ~50 tok/s via MLX on M5 Max, and the natively integrated vision encoder lets the orchestrator ingest diagrams and screenshots without a separate VLM call. At ~67 GB Q4 it still fits alongside a 17 GB model (e.g., Qwen3.6-27B) with room to spare. Qwen3.6-27B covers 256K context at roughly a quarter the size and is adequate for most orchestration pipelines that don't require mega-context.
 
 *(Resident size corrected 2026-07-18: 55 GB → 67 GB, per the official Ollama tags page — see the diffs callout above.)*
+
+**Also evaluated, not selected:** NVIDIA Nemotron 3 Super (Mar 11, 2026; 120B/12B-active hybrid Mamba-Transformer, 1M context, ~60 GB at Q4) — fits comfortably alongside another model and offers 2.2x GPT-OSS-120B throughput, but scores 60.47% SWE-bench Verified, well below Qwen3.6-27B and not directly comparable to Scout's orchestration-specific strengths (10M context, native vision). Worth revisiting if a future role specifically needs high-concurrency multi-agent throughput over raw context length.
 
 ### 3.5 LLM-as-Judge / Verifier
 *Calibrated scoring against rubrics, pairwise preference evaluation, output verification.*
@@ -352,3 +379,19 @@ ollama run gemma4:26b "Extract all column headers and row values from this table
 - [Open Source LLM Comparison Table 2026 — ComputingForGeeks](https://computingforgeeks.com/open-source-llm-comparison/)
 - [Best Ollama Models 2026 — Morph](https://www.morphllm.com/best-ollama-models)
 - [The Local LLM Model Guide 2026 — InKeyBit](https://www.inkeybit.com/blog/local-llm-model-guide-2026)
+- [GLM-5.2 beats GPT-5.5 on long-horizon coding benchmarks — VentureBeat](https://venturebeat.com/technology/z-ais-open-weights-glm-5-2-beats-gpt-5-5-on-multiple-long-horizon-coding-benchmarks-for-1-6th-the-cost)
+- [GLM-5.2: #1 Open Source AI Model? Full Review — BuildFastWithAI](https://www.buildfastwithai.com/blogs/glm-5-1-open-source-review-2026)
+- [Unsloth Quantizes GLM-5.2's 1.51TB to 217GB for Local Inference — AI Weekly](https://aiweekly.co/alerts/unsloth-quantizes-glm-52s-151tb-to-217gb-for-local-inference)
+- [Run GLM-5.2 Locally: Ollama, VRAM & Hardware Guide — GLM5.app](https://glm5.app/blog/how-to-run-glm-5-2-locally)
+- [MiniMax M3 Open Weights Are Live — Nerova](https://nerova.ai/news/minimax-m3-open-weight-agent-builders-june-2026)
+- [MiniMax M3 Local AI Hardware Guide 2026 — RunAIHome](https://www.runaihome.com/blog/minimax-m3-local-ai-vram-hardware-guide-2026/)
+- [MiniMax M3 — How to Run Locally — Unsloth Documentation](https://unsloth.ai/docs/models/minimax-m3)
+- [Best Open Source LLMs July 2026 Leaderboard — BenchLM.ai](https://benchlm.ai/best/open-source)
+- [NVIDIA Nemotron 3 Super: 60% SWE-bench, Best Open Model for Code — Abhishek Gautam](https://www.abhs.in/blog/nvidia-nemotron-3-super-swe-bench-60-percent-open-weight-coding-2026)
+- [Nemotron 3 Super Technical Report — NVIDIA Research (arXiv)](https://arxiv.org/pdf/2604.12374)
+- [NVIDIA Nemotron 3 Super — Ollama Blog](https://ollama.com/blog/nemotron-3-ultra)
+- [Meet North Mini Code: Cohere's 30B Open-Weight MoE Model — MarkTechPost](https://www.marktechpost.com/2026/06/11/meet-north-mini-code-coheres-30b-open-weight-mixture-of-experts-model-with-3b-active-parameters-for-agentic-coding/)
+- [Cohere North Mini Code 1.0: Open 30B Coding Model Guide — Codersera](https://codersera.com/blog/cohere-north-mini-code-guide-2026/)
+- [Introducing gpt-oss — OpenAI](https://openai.com/index/introducing-gpt-oss/)
+- [OpenAI gpt-oss — Ollama Blog](https://ollama.com/blog/gpt-oss)
+- [gpt-oss Tags — Ollama](https://ollama.com/library/gpt-oss)
