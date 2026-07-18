@@ -1,26 +1,30 @@
 # Ollama Models Research — 2026-07 Refresh
 
-**Generated:** 2026-07-18 (validated same-day; see callout below)  
+**Generated:** 2026-07-18 (corrected same-day; see callout below)  
 **Hardware target:** Apple M5 Max · 128 GB unified memory · 614 GB/s bandwidth  
 **Research window:** Last 60 days (2026-05-18 → 2026-07-18)
 
-> **Diffs from previous refresh (see commit `f5cfdda`, 2026-07-18):** No role
-> picks changed. Two factual corrections surfaced from a same-day
-> spot-check:
-> 1. **Laguna XS 2.1 resident size corrected 17 GB → 20 GB** (Q4_K_M) —
->    verified against the official Ollama tag page
->    ([ollama.com/library/laguna-xs-2.1/tags](https://ollama.com/library/laguna-xs-2.1/tags)),
->    which lists `laguna-xs-2.1:q4_K_M` at 20 GB, not the ~17 GB estimate
->    used in the original run. Applied throughout §1, §3.2, §4.1, §5, §6.
-> 2. **Kimi K2.7 Code GGUF availability corrected** — the original run's
->    claim "no GGUF exists yet" is superseded: community GGUF builds
->    (`unsloth/Kimi-K2.7-Code-GGUF`, `mradermacher/Kimi-K2.7-Code-GGUF`) now
->    exist. This does **not** change its cloud-only classification — even
->    Q4 quantization is ~585 GB, still 4–5x beyond the 128 GB envelope.
+> **Diffs from previous refresh (see commit `bea2b59`, 2026-07-18):** No role
+> picks changed. This pass verified every `ollama pull` tag directly against
+> the official `ollama.com/library/<model>/tags` pages instead of secondary
+> sources, and found real errors:
+> 1. **`devstral-2:small` was not a valid Ollama tag.** The actual model is
+>    named `devstral-small-2` (not a `:small` tag under a `devstral-2`
+>    model) — `ollama pull devstral-2:small` would have failed outright.
+>    Corrected throughout §3.2, §5, §6. Size also refined ~14 GB → ~15 GB.
+> 2. **`llama4:scout` resident size corrected 55 GB → 67 GB** (Q4) — the
+>    official tags page lists it at 67 GB, not the ~55 GB estimate used
+>    previously. Corrected throughout §3.4, §3.7, §5, §6, including
+>    concurrent-pair and total-inventory totals.
+> 3. **`gemma4:26b` resident size corrected 15 GB → 18 GB.** Corrected in
+>    §3.6 and §6.
+> 4. **`gemma4:e4b` resident size corrected 5 GB → ~10 GB** (nearly 2x the
+>    original estimate) — the "fits in 6 GB" framing in §3.7 was wrong and
+>    has been removed. Corrected in §3.7, §4.3, §5, §6.
 >
-> This was a mechanics-validation re-run testing the new git-history-driven
-> commit process (see `COMMIT_FORMAT.md`), not a full 60-day research
-> sweep — the underlying research window is unchanged from the original run.
+> None of these corrections change a role pick — only the sizing and tag
+> accuracy of already-correct picks. See `OPERATIONS.md` §5 for the
+> pre-publish verification rule this pass was testing.
 
 ---
 
@@ -52,9 +56,9 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 ### Runtime Notes
 
 - **MLX vs llama.cpp:** Apple's native MLX framework delivers 40–80% higher throughput than llama.cpp on Apple Silicon. Ollama v0.32.0 (Jul 11, 2026) now bundles an MLX engine for Apple Silicon — use it for maximum speed. `mlx_lm` directly gives the most headroom for speed-critical workflows.
-- **MoE-A3B behaviour:** MoE models activate only ~3B parameters per token despite loading much larger full weight sets, giving 30B-class quality at high tok/s. Qwen 3.5 30B-A3B loads ~17 GB at Q4; Laguna XS 2.1 loads ~20 GB at Q4_K_M (confirmed via [official Ollama tag page](https://ollama.com/library/laguna-xs-2.1/tags), corrected from an earlier ~17 GB estimate). This remains the highest quality-per-GB pattern available in Ollama today.
+- **MoE-A3B behaviour:** MoE models activate only ~3B parameters per token despite loading much larger full weight sets, giving 30B-class quality at high tok/s. Qwen 3.5 30B-A3B loads ~17 GB at Q4; Laguna XS 2.1 loads ~20 GB at Q4_K_M. This remains the highest quality-per-GB pattern available in Ollama today.
 - **Ollama v0.32.0 uplift:** Gemma 4 runs ~90% faster in this release due to multi-token prediction (MTP) and automatic hardware tuning. Pull the latest Ollama before benchmarking any Gemma 4 variant.
-- **KV-cache headroom:** At 128 GB, plan for ~10–18 GB reserved for macOS + KV-cache at long context. Practical ceiling for a single loaded model is ~110 GB.
+- **KV-cache headroom:** At 128 GB, plan for ~10–18 GB reserved for macOS + KV-cache at long context. Practical ceiling for a single loaded model is ~110 GB — comfortably above even Llama 4 Scout's corrected 67 GB footprint.
 - **M5 Max vs M4 Max:** The M5 Max delivers ~28% higher tok/s across all model sizes vs M4 Max (600 GB/s → 614 GB/s bandwidth, improved GPU, redesigned Neural Engine).
 
 ### What Exceeds 128 GB (Cloud-Only)
@@ -110,11 +114,11 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 | | Model | Q4 resident | Key benchmarks | Ollama tag |
 |-|-------|------------|----------------|------------|
 | **Top pick** | Laguna XS 2.1 | ~20 GB | SWE-bench Verified 70.9%; SWE-bench Multilingual 63.1%; 256K ctx | `laguna-xs-2.1:q4_K_M` |
-| **Smaller pick** | Devstral Small 2 | ~14 GB | SWE-bench Verified 68.0%; 256K ctx; Apache 2.0 | `devstral-2:small` |
+| **Smaller pick** | Devstral Small 2 | ~15 GB | SWE-bench Verified 68.0%; 256K ctx; Apache 2.0 | `devstral-small-2` |
 
 **Rationale:** Laguna XS 2.1 (Poolside, Jul 2, 2026) is a 33B/3B-active MoE that scores 70.9% on SWE-bench Verified — the highest of any Ollama-available model in its memory tier as of July 2026. MoE sparsity keeps generation fast (~56 tok/s via MLX) while the 256K context window handles large multi-file codebases. Devstral Small 2 (Mistral, 24B dense) is nearly as capable at 68.0% and is more production-battle-tested in agentic scaffolds (OpenHands, SWE-agent). Devstral 2 full (123B, 72.2% SWE-bench) is the strongest open-weight coder but requires ~65 GB Q4 — it fits in 128 GB alone but leaves little room for concurrent models.
 
-*(Resident size corrected 2026-07-18: the official Ollama tag page lists `laguna-xs-2.1:q4_K_M` at 20 GB — see the diffs callout above.)*
+*(Corrected 2026-07-18: the Ollama tag is `devstral-small-2`, not `devstral-2:small` — the latter does not exist and would fail to pull. See the diffs callout above.)*
 
 ### 3.3 Code Debugger
 *Reasoning / chain-of-thought, root-cause analysis, math-heavy debugging.*
@@ -131,10 +135,12 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 
 | | Model | Q4 resident | Key benchmarks | Ollama tag |
 |-|-------|------------|----------------|------------|
-| **Top pick** | Llama 4 Scout | ~55 GB | 10M-token context; 17B active / 109B total MoE; natively multimodal; strong tool calling | `llama4:scout` |
+| **Top pick** | Llama 4 Scout | ~67 GB | 10M-token context; 17B active / 109B total MoE; natively multimodal; strong tool calling | `llama4:scout` |
 | **Smaller pick** | Qwen3.6-27B | ~17 GB | 256K context; reliable structured output; strong tool fidelity | `qwen3.6:27b` |
 
-**Rationale:** Llama 4 Scout (Meta, Apr 2026) offers the longest locally-runnable context window in existence at 10M tokens — orders of magnitude beyond any competitor. Its 17B active-parameter MoE architecture runs at ~50 tok/s via MLX on M5 Max, and the natively integrated vision encoder lets the orchestrator ingest diagrams and screenshots without a separate VLM call. At ~55 GB Q4 it fits alongside a 17 GB model (e.g., Qwen3.6-27B) with room to spare. Qwen3.6-27B covers 256K context at one-third the size and is adequate for most orchestration pipelines that don't require mega-context.
+**Rationale:** Llama 4 Scout (Meta, Apr 2026) offers the longest locally-runnable context window in existence at 10M tokens — orders of magnitude beyond any competitor. Its 17B active-parameter MoE architecture runs at ~50 tok/s via MLX on M5 Max, and the natively integrated vision encoder lets the orchestrator ingest diagrams and screenshots without a separate VLM call. At ~67 GB Q4 it still fits alongside a 17 GB model (e.g., Qwen3.6-27B) with room to spare. Qwen3.6-27B covers 256K context at roughly a quarter the size and is adequate for most orchestration pipelines that don't require mega-context.
+
+*(Resident size corrected 2026-07-18: 55 GB → 67 GB, per the official Ollama tags page — see the diffs callout above.)*
 
 ### 3.5 LLM-as-Judge / Verifier
 *Calibrated scoring against rubrics, pairwise preference evaluation, output verification.*
@@ -151,20 +157,24 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 
 | | Model | Q4 resident | Key capability | Ollama tag |
 |-|-------|------------|----------------|------------|
-| **Top pick** | Gemma 4 26B MoE (E26B-A4B) | ~15 GB | Natively multimodal; strong table/equation/diagram extraction; 89% AIME 2026 | `gemma4:26b` |
+| **Top pick** | Gemma 4 26B MoE (E26B-A4B) | ~18 GB | Natively multimodal; strong table/equation/diagram extraction; 89% AIME 2026 | `gemma4:26b` |
 | **Smaller pick** | Mistral OCR 4 | ~6 GB | Purpose-built OCR; structured Markdown/JSON output; best for high-throughput privacy-preserving pipelines | *(check `ollama search mistral-ocr`)* |
 
 **Rationale:** Gemma 4's 26B MoE variant (Google, Apr 2026) understands images, text, tables, and LaTeX natively in a single forward pass — no separate OCR pre-processing needed. It handles complex PDF layouts, nested tables, and mixed-language documents reliably. For dedicated high-throughput pipelines (batch invoice processing, form extraction), Mistral OCR 4 is purpose-tuned and outputs clean structured Markdown or JSON — it outperforms generalists on this narrow domain. Also consider IBM Granite 3.2 Vision for structured form/invoice extraction.
+
+*(Resident size corrected 2026-07-18: 15 GB → 18 GB, per the official Ollama tags page — see the diffs callout above.)*
 
 ### 3.7 Vision / Image Understanding
 *VLMs for image comprehension only — not generation.*
 
 | | Model | Q4 resident | Key capability | Ollama tag |
 |-|-------|------------|----------------|------------|
-| **Top pick** | Llama 4 Scout | ~55 GB | Natively integrated vision (not bolt-on); coherent multi-image + long-text reasoning | `llama4:scout` |
-| **Smaller pick** | Gemma 4 E4B | ~5 GB | Natively multimodal (image, audio, video); fits in 6 GB; best tiny VLM available | `gemma4:e4b` |
+| **Top pick** | Llama 4 Scout | ~67 GB | Natively integrated vision (not bolt-on); coherent multi-image + long-text reasoning | `llama4:scout` |
+| **Smaller pick** | Gemma 4 E4B | ~10 GB | Natively multimodal (image, audio, video); smallest of the resident models in this doc; best tiny VLM available | `gemma4:e4b` |
 
-**Rationale:** Llama 4 Scout integrates vision natively into the base architecture (not via a separate LLaVA-style encoder adapter), resulting in more coherent multi-modal reasoning when combining images with long context. Supports up to 5 input images per prompt. Gemma 4 E4B is the go-to when you need a capable VLM in a tiny footprint — it also accepts audio and video natively, something no other sub-10 GB Ollama model offers.
+**Rationale:** Llama 4 Scout integrates vision natively into the base architecture (not via a separate LLaVA-style encoder adapter), resulting in more coherent multi-modal reasoning when combining images with long context. Supports up to 5 input images per prompt. Gemma 4 E4B is the go-to when you need a capable VLM in a small footprint — it also accepts audio and video natively, something no other model in this doc offers.
+
+*(Corrected 2026-07-18: resident size 5 GB → ~10 GB, and the earlier "fits in 6 GB" claim removed as inaccurate — see the diffs callout above.)*
 
 ---
 
@@ -179,9 +189,9 @@ Models like **Laguna XS 2.1** (33B/3B active, ~20 GB at Q4_K_M) and **Qwen 3.5 3
 **DeepSeek-R1-Distill-Qwen-32B** transfers chain-of-thought behaviour from a 671B teacher into a 32B student (20 GB at Q4). It achieves MATH scores that beat many naive 70B models, at twice the speed and half the memory. For debugging and reasoning tasks, the distill is sufficient and the correct choice — you don't need to reach for a 70B.
 
 ### 4.3 Purpose-Built Specialized Small Models
-A 5–8 GB specialist routinely beats a 70B generalist on its target domain. Examples:
+A 6–10 GB specialist routinely beats a 70B generalist on its target domain. Examples:
 - **Mistral OCR 4** (~6 GB): purpose-tuned OCR with structured output — more reliable for batch document processing than prompting Qwen3.6-27B
-- **Gemma 4 E4B** (~5 GB): best tiny VLM; handles image/audio/video natively
+- **Gemma 4 E4B** (~10 GB): best small VLM; handles image/audio/video natively
 - **nomic-embed-text**: best-in-class embeddings for RAG pipelines; negligible resident memory
 
 General principle: profile which tasks consume the most tokens in your workflow, then identify if a specialist exists. The 128 GB envelope lets you keep several specialists resident simultaneously.
@@ -196,24 +206,26 @@ Ollama loads and unloads models from unified memory on demand. The full inventor
 
 | Model | Ollama tag | Q4 resident | Primary role |
 |-------|-----------|------------|-------------|
-| Llama 4 Scout | `llama4:scout` | ~55 GB | Orchestrator + vision |
+| Llama 4 Scout | `llama4:scout` | ~67 GB | Orchestrator + vision |
 | Qwen3.6-27B | `qwen3.6:27b` | ~17 GB | Generalist + judge |
 | DeepSeek-R1-Distill-Qwen-32B | `deepseek-r1:32b` | ~20 GB | Code debugger / reasoning |
-| Devstral Small 2 | `devstral-2:small` | ~14 GB | Code implementer (battle-tested) |
+| Devstral Small 2 | `devstral-small-2` | ~15 GB | Code implementer (battle-tested) |
 | Laguna XS 2.1 | `laguna-xs-2.1:q4_K_M` | ~20 GB | Code implementer (higher SWE-bench) |
 | Gemma 4 12B Unified | `gemma4:12b` | ~8 GB | Fast general + doc assistant |
-| Gemma 4 E4B | `gemma4:e4b` | ~5 GB | Tiny vision / audio / video |
+| Gemma 4 E4B | `gemma4:e4b` | ~10 GB | Small vision / audio / video |
 
-**Total inventory size on disk:** ~139 GB (can all be pulled; Ollama evicts from RAM as needed). *(Corrected from ~136 GB per the Laguna XS 2.1 sizing fix.)*
+**Total inventory size on disk:** ~157 GB (can all be pulled; Ollama evicts from RAM as needed). *(Corrected from ~139 GB — largely driven by the Llama 4 Scout and Gemma 4 E4B sizing fixes.)*
 
 ### Recommended Concurrent Pairs
 
 | Pair | Combined RAM | Use case |
 |------|-------------|----------|
-| Scout + Qwen3.6 | ~72 GB | Orchestrator + workhorse; long-context agentic sessions |
-| Devstral Small 2 + DeepSeek-R1 32B | ~34 GB | Coding session: implement → debug loop |
+| Scout + Qwen3.6 | ~84 GB | Orchestrator + workhorse; long-context agentic sessions |
+| Devstral Small 2 + DeepSeek-R1 32B | ~35 GB | Coding session: implement → debug loop |
 | Qwen3.6 + Gemma 4 12B | ~25 GB | Lightweight dual-model chat + vision |
-| Scout + Devstral Small 2 | ~69 GB | Orchestrated multi-file coding |
+| Scout + Devstral Small 2 | ~82 GB | Orchestrated multi-file coding |
+
+All pairs still fit comfortably within the 128 GB envelope after the sizing corrections — no pair recommendation changed, only the totals.
 
 ### What to Exclude from Local Use
 
@@ -230,22 +242,22 @@ Ollama loads and unloads models from unified memory on demand. The full inventor
 ```bash
 # --- Pull models ---
 ollama pull qwen3.6:27b            # ~17 GB  — generalist / judge / debugger fallback
-ollama pull llama4:scout            # ~55 GB  — orchestrator + vision
+ollama pull llama4:scout            # ~67 GB  — orchestrator + vision
 ollama pull deepseek-r1:32b         # ~20 GB  — reasoning / debugging
-ollama pull devstral-2:small        # ~14 GB  — code implementation
+ollama pull devstral-small-2        # ~15 GB  — code implementation
 ollama pull laguna-xs-2.1:q4_K_M    # ~20 GB  — code implementation (alt, higher SWE-bench)
 ollama pull gemma4:12b              # ~8 GB   — fast general
-ollama pull gemma4:e4b              # ~5 GB   — tiny vision/audio/video
+ollama pull gemma4:e4b              # ~10 GB  — small vision/audio/video
 
 # --- Verify resident memory after load ---
 # (run `ollama ps` while the model is active to confirm)
 # qwen3.6:27b          → 16–18 GB
-# llama4:scout         → 52–57 GB
+# llama4:scout         → 65–70 GB
 # deepseek-r1:32b      → 19–21 GB
-# devstral-2:small     → 13–15 GB
+# devstral-small-2     → 14–16 GB
 # laguna-xs-2.1:q4_K_M → 18–21 GB
 # gemma4:12b           → 7–9 GB
-# gemma4:e4b           → 4–6 GB
+# gemma4:e4b           → 9–11 GB
 
 # --- Smoke tests ---
 
@@ -264,7 +276,7 @@ ollama run deepseek-r1:32b "What is the derivative of x^3 * sin(x)? Show all ste
 # Expected: full chain-of-thought before answer
 
 # Agentic coding (Devstral Small 2)
-ollama run devstral-2:small "Implement a Python function that validates an email address using a regex."
+ollama run devstral-small-2 "Implement a Python function that validates an email address using a regex."
 
 # Agentic coding alt (Laguna XS 2.1)
 ollama run laguna-xs-2.1:q4_K_M "Refactor this function to handle None inputs gracefully: def get_len(s): return len(s)"
@@ -273,7 +285,7 @@ ollama run laguna-xs-2.1:q4_K_M "Refactor this function to handle None inputs gr
 # ollama run gemma4:e4b "Describe what you see in this image." --image /path/to/screenshot.png
 
 # Document understanding (Gemma 4 26B MoE)
-ollama pull gemma4:26b            # ~15 GB  — document understanding
+ollama pull gemma4:26b            # ~18 GB  — document understanding
 ollama run gemma4:26b "Extract all column headers and row values from this table image." --image /path/to/table.png
 ```
 
@@ -294,11 +306,12 @@ ollama run gemma4:26b "Extract all column headers and row values from this table
 - [Qwen3.6-27B: Flagship-Level Coding in a 27B Dense Model — Qwen Blog](https://qwen.ai/blog?id=qwen3.6-27b)
 - [Qwen3.6-27B Review — Local AI Master](https://localaimaster.com/models/qwen-3-6-27b)
 - [Qwen3.6-27B VRAM Requirements — Will It Run AI](https://willitrunai.com/blog/qwen-3-6-27b-vram-requirements)
-- [Qwen3.6-27B on Ollama](https://ollama.com/library/qwen3.6)
+- [Qwen3.6-27B Tags — Ollama](https://ollama.com/library/qwen3.6/tags)
 - [Introducing Devstral 2 and Mistral Vibe CLI — Mistral AI](https://mistral.ai/news/devstral-2-vibe-cli/)
 - [Devstral — Mistral AI](https://mistral.ai/news/devstral/)
-- [Devstral 2 Review — Local AI Master](https://localaimaster.com/models/devstral)
-- [Devstral 2 on Ollama](https://ollama.com/library/devstral-2)
+- [Devstral Small 2 — Ollama](https://ollama.com/library/devstral-small-2)
+- [Devstral Small 2 Tags — Ollama](https://ollama.com/library/devstral-small-2/tags)
+- [Devstral Small 2 for Local AI in 2026 — RunAIHome](https://runaihome.com/blog/devstral-small-2-local-ai-hardware-guide-2026/)
 - [Introducing Laguna XS 2.1 — Poolside](https://poolside.ai/blog/introducing-laguna-xs-2-1)
 - [Laguna XS 2.1 on Ollama](https://ollama.com/library/laguna-xs-2.1)
 - [Laguna XS 2.1 Tags — Ollama](https://ollama.com/library/laguna-xs-2.1/tags)
@@ -309,11 +322,13 @@ ollama run gemma4:26b "Extract all column headers and row values from this table
 - [unsloth/Kimi-K2.7-Code-GGUF — Hugging Face](https://huggingface.co/unsloth/Kimi-K2.7-Code-GGUF)
 - [The Llama 4 Herd — Meta AI Blog](https://ai.meta.com/blog/llama-4-multimodal-intelligence/)
 - [Llama 4 Guide: Running Scout and Maverick Locally — InsiderLLM](https://insiderllm.com/guides/llama-4-guide-scout-maverick/)
-- [Llama 4 Complete Guide — AIMadeTools](https://www.aimadetools.com/blog/llama-4-complete-guide/)
+- [Llama4 Tags — Ollama](https://ollama.com/library/llama4/tags)
+- [Llama4 Scout — Ollama](https://ollama.com/library/llama4:scout)
 - [Gemma 4: Specs, Benchmarks, and Local Guide — Auriga IT](https://aurigait.com/blog/gemma-4-features-benchmarks-guide/)
-- [Gemma 4 GPU & VRAM Requirements 2026 — Will It Run AI](https://willitrunai.com/blog/gemma-4-gpu-requirements)
-- [Gemma 4 VRAM Requirements — RunAIatHome](https://runaiathome.com/blog/gemma-4-local-setup-guide/)
-- [Gemma 4: How a 31B Model Beats 400B Rivals — Tech Insider](https://tech-insider.org/google-gemma-4-open-model-benchmarks-2026/)
+- [Gemma4 Tags — Ollama](https://ollama.com/library/gemma4/tags)
+- [Gemma4 26B — Ollama](https://ollama.com/library/gemma4:26b)
+- [Gemma4 E4B — Ollama](https://ollama.com/library/gemma4:e4b)
+- [Gemma4 12B — Ollama](https://ollama.com/library/gemma4:12b)
 - [Best AI Coding Models Ranked: SWE-bench Leaderboard — Local AI Master](https://localaimaster.com/models/best-ai-coding-models)
 - [AI Coding Benchmark Leaderboard 2026 — CodeSOTA](https://www.codesota.com/code-generation)
 - [Best LLM for Coding July 2026 — BenchLM.ai](https://benchlm.ai/coding)
@@ -322,6 +337,7 @@ ollama run gemma4:26b "Extract all column headers and row values from this table
 - [Best Open Source Reasoning Model 2026 — Ertas AI](https://www.ertas.ai/best/best-open-source-reasoning-model)
 - [Best Local Reasoning LLMs 2026 — LLMRun](https://llmrun.dev/use/reasoning)
 - [Qwen3 vs DeepSeek R1: Which Open-Source Reasoning Model? — QAInsights](https://qainsights.com/qwen3-vs-deepseek-r1-which-open-source-reasoning-model/)
+- [DeepSeek-R1 Tags — Ollama](https://ollama.com/library/deepseek-r1/tags)
 - [Best LLM Judge Models in 2026 — FutureAGI](https://futureagi.com/blog/best-llm-judge-models-2026/)
 - [RewardBench 2: ICLR 2026 Paper](https://arxiv.org/pdf/2506.01937)
 - [Best Local Vision Models 2026 — PromptQuorum](https://www.promptquorum.com/power-local-llm/local-vision-models-llava-ollama-2026)

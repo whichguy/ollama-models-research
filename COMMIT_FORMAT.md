@@ -8,8 +8,9 @@ so every refresh commit MUST include a machine-parseable `ROLE PICKS` block
 in addition to the human-readable narrative sections.
 
 See `OPERATIONS.md` for environment-specific execution notes (GitHub auth
-fallback, local-branch mismatches, the fact that no session-level scheduler
-governs this routine) — read it alongside this file, not instead of it.
+fallback, MCP disconnect handling, local-branch mismatches, pre-publish tag
+verification, email-draft rules) — read it alongside this file, not instead
+of it.
 
 ---
 
@@ -105,6 +106,27 @@ model research, e.g. `LEARNED: - none — process fix only`.
 
 ---
 
+## README sync rule
+
+Every refresh commit — research or process-only, no exceptions — MUST also
+update `README.md`'s "📌 Latest refresh" section in the same commit. Content:
+the run's date and a 1–3 line summary (role picks changed count, plus the
+headline finding if there is one). Do not defer this to "next time" — a
+README that only gets updated *sometimes* is worse than a static one,
+because it looks current without being current. This exists so anyone
+landing in the repo cold gets today's picture without opening commit
+history or the monthly doc — the same failure mode that left the original
+repo stub (just "# ollama-models-research") unedited for the entire first
+research cycle is what this rule prevents from recurring.
+
+`README.md`'s "Latest refresh" section should NOT cite this same commit's
+own SHA (unknowable before the push completes) — reference the date and,
+if useful for context, the *prior* commit's SHA, matching how each monthly
+doc's own diffs callout already references the previous commit rather than
+itself.
+
+---
+
 ## Why `ROLE PICKS` exists as a separate block
 
 `CONCLUSION` is for a human skimming one commit. `ROLE PICKS` is for the
@@ -123,11 +145,12 @@ no body, because `COMMIT_FORMAT.md` didn't exist yet when it was written.
 Step 0's grep will match its subject but find no `ROLE PICKS` block in it —
 per the skip rule above, ignore it and keep walking.
 
-The commit that added this sentence (see the repo's `refresh:` history
-around 2026-07-18, subject containing "baseline backfill") retroactively
-supplies the first real, parseable `ROLE PICKS` block, carrying forward the
-exact picks from `09bba13`'s research unchanged. Treat **that** commit, not
-`09bba13`, as the baseline anchor for `PRIOR STATE` going forward.
+The commit `f5cfdda` (2026-07-18, subject containing "baseline backfill")
+retroactively supplies the first real, parseable `ROLE PICKS` block,
+carrying forward the exact picks from `09bba13`'s research unchanged. Treat
+**that** commit as the practical starting point for `PRIOR STATE`, not
+`09bba13` — later commits (`bea2b59` and after) build on it normally via
+Step 0.
 
 ---
 
@@ -157,7 +180,7 @@ LEARNED
 - Qwen3.6-27B (Alibaba, 2026-04-22): 27B dense, 256K ctx, dual-mode
   thinking, 77.2% SWE-bench Verified — within 3.7 pts of Claude Opus 4.6
 - Llama 4 Scout (Meta, 2026-04): only locally-runnable 10M-context model;
-  17B active / 109B total MoE; ~55 GB Q4 on M5 Max
+  17B active / 109B total MoE; ~67 GB Q4 on M5 Max
 - DeepSeek-R1-Distill-Qwen-32B: highest MATH score of any sub-40 GB local
   model (72%); always-on CoT at ~20 GB Q4
 - MLX delivers 40-80% higher tok/s than llama.cpp on M5 Max (LLMCheck,
@@ -165,7 +188,7 @@ LEARNED
 - M5 Max ~28% faster than M4 Max across all sizes (614 vs 546 GB/s bw)
 
 VALIDATED
-- MoE-A3B pattern: ~17 GB loaded, ~3B active/token, quality competitive
+- MoE-A3B pattern: ~17-20 GB loaded, ~3B active/token, quality competitive
   with dense 30B at faster inference (Laguna XS 2.1, Qwen 3.5 30B-A3B)
 - MLX framework advantage: 40-80% throughput gain over llama.cpp confirmed
 DISAVOWED
@@ -189,5 +212,7 @@ picks are first-assignment, not yet tested against a prior baseline.
 Refs: ollama-models-2026-07.md
 ```
 
-(Note: the actual `09bba13` commit predates this spec and does not contain
-this body — see "Baseline anchor" above.)
+(Note: figures in this example were touched up post-hoc to match corrections
+made in later commits — e.g. Llama 4 Scout's size — so this stays internally
+consistent as a teaching example. The actual `09bba13` commit predates this
+spec and does not contain this body at all — see "Baseline anchor" above.)
