@@ -26,17 +26,18 @@ bandwidth), across 7 agentic roles. Refreshed roughly every 10 days (the
 
 ## 📌 Latest refresh
 
-**2026-07-18** — 0 role picks changed. Process-quality review of this
-session's own commit history found a real citation bug: `PRIOR STATE`
-sections cited the *immediately preceding* commit instead of the commit
-that actually originated each pick, defeating the "land directly on the
-original reasoning" purpose of the SHA-citation rule. Fixed the ambiguous
-wording in `COMMIT_FORMAT.md` Step 0, generalized the "Baseline anchor"
-section so it stops hardcoding SHAs that go stale, and simplified this
-doc's `Generated:` header line (it had been accumulating a new descriptor
-with every same-day edit). Earlier same-day passes broadened model coverage
-(GLM-5.2, MiniMax M3, Nemotron 3 Super, Cohere North Mini Code 1.0) and
-fixed 4 tag/size errors — see
+**2026-07-18** — 0 role picks changed. Ran the routine fresh end-to-end
+(Setup → Step 0 history pull → research → commit) to validate the process
+docs work as a whole, not just individually. Step 0's SHA-citation fix (see
+prior entry) confirmed correct — this run's `PRIOR STATE` resolved to
+`f5cfdda` as expected. Research turned up **DeepSeek-V4-Pro-Max: 80.6%
+SWE-bench Verified, the highest score of any model checked this session**
+— but at 1.6T total params it needs ~800 GB at Q4 regardless of active
+params, so it's cloud-only; a circulating "~50 GB" claim for it was
+arithmetically impossible and rejected on basic quantization math alone,
+without needing an official source. Earlier same-day passes fixed a real
+SHA-citation bug, broadened model coverage (GLM-5.2, MiniMax M3, Nemotron 3
+Super, Cohere North Mini Code 1.0), and fixed 4 tag/size errors — see
 [`ollama-models-2026-07.md`](./ollama-models-2026-07.md) for full detail.
 
 *(This section must be updated by every refresh commit — research or

@@ -124,6 +124,19 @@ page — not against a blog's restatement of it. If the tag doesn't appear on
 the official tags page, the model name or tag format is wrong and must be
 corrected before publishing, not left as an assumption.
 
+**A second, stronger example (2026-07-18):** researching DeepSeek-V4-Pro-Max
+(1.6T total params, 49B active MoE), multiple secondary sources repeated a
+claim that `Q4_K_M` quantization brings it down to "~50 GB." This does not
+require fetching an authoritative source to reject — basic quantization
+arithmetic is enough: Q4 is roughly 0.5 bytes per parameter, so 1.6T
+parameters needs on the order of 800 GB regardless of how many experts
+activate per token (MoE inference still requires every expert resident in
+memory). A ~50 GB file would only be plausible for a ~100B-parameter model.
+**Lesson: apply order-of-magnitude sanity checks (params × bytes-per-param
+≈ expected size) to every quantized-size claim, not just tag-name lookups —
+some errors are catchable by arithmetic alone, faster than chasing down an
+official page that may not even exist yet for a very new model.**
+
 ## 6. Gmail is draft-only — no send capability, and same-day duplicate handling
 
 This environment's Gmail MCP integration exposes `create_draft`,
