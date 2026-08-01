@@ -26,19 +26,21 @@ bandwidth), across 7 agentic roles. Refreshed roughly every 10 days (the
 
 ## 📌 Latest refresh
 
-**2026-07-18** — 0 role picks changed. Ran the routine fresh end-to-end
-(Setup → Step 0 history pull → research → commit) to validate the process
-docs work as a whole, not just individually. Step 0's SHA-citation fix (see
-prior entry) confirmed correct — this run's `PRIOR STATE` resolved to
-`f5cfdda` as expected. Research turned up **DeepSeek-V4-Pro-Max: 80.6%
-SWE-bench Verified, the highest score of any model checked this session**
-— but at 1.6T total params it needs ~800 GB at Q4 regardless of active
-params, so it's cloud-only; a circulating "~50 GB" claim for it was
-arithmetically impossible and rejected on basic quantization math alone,
-without needing an official source. Earlier same-day passes fixed a real
-SHA-citation bug, broadened model coverage (GLM-5.2, MiniMax M3, Nemotron 3
-Super, Cohere North Mini Code 1.0), and fixed 4 tag/size errors — see
-[`ollama-models-2026-07.md`](./ollama-models-2026-07.md) for full detail.
+**2026-08-01** — 1 role pick changed. Code-implementer's **smaller pick**
+moved from Devstral Small 2 to **Ornith-1.0-9B** (deepreinforce-ai, dense
+9B, released 2026-06-25): 69.4% SWE-bench Verified at ~5.6 GB Q4 — higher
+score at roughly a third the memory of the prior pick. Devstral Small 2
+remains a fully valid alternative for its longer track record in production
+agentic tool-calling scaffolds. All 6 other role picks unchanged. Also
+corrected this cycle: Mistral Medium 3.5's resident size (64 GB → 80 GB,
+which also revises its tok/s ceiling down to ~6-8 on this hardware) and
+Ollama's current stable version (v0.32.1 → v0.32.5, notably adding native
+MLX support for Laguna XS 2.1 on Apple GPUs). Note: the prior refresh
+commit (`da85bc3`, 2026-07-21) shipped without a structured `ROLE PICKS`
+block — a recurrence of the gap OPERATIONS.md §4 already documents (the
+scheduled trigger's own stored instructions don't yet embed this repo's
+commit format). See [`ollama-models-2026-08.md`](./ollama-models-2026-08.md)
+for full detail.
 
 *(This section must be updated by every refresh commit — research or
 process-only — with the date and a 1–3 line summary. See the "README sync
@@ -55,7 +57,7 @@ current picture without digging through commit history.)*
 
 ## Latest research
 
-See [`ollama-models-2026-07.md`](./ollama-models-2026-07.md) for current
+See [`ollama-models-2026-08.md`](./ollama-models-2026-08.md) for current
 recommendations across all 7 roles: generalist agentic default, code
 implementer, code debugger, plan orchestrator, LLM-as-judge, document
 understanding, and vision.
