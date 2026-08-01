@@ -29,7 +29,7 @@ bandwidth), across 7 agentic roles. Refreshed roughly every 10 days (the
 **2026-08-01** — 1 role pick changed. Code-implementer's **smaller pick**
 moved from Devstral Small 2 to **Ornith-1.0-9B** (deepreinforce-ai, dense
 9B, released 2026-06-25): 69.4% SWE-bench Verified at ~5.6 GB Q4 — higher
-score at roughly a third the memory of the prior pick. Devstral Small 2
+score at roughly a third of the memory of the prior pick. Devstral Small 2
 remains a fully valid alternative for its longer track record in production
 agentic tool-calling scaffolds. All 6 other role picks unchanged. Also
 corrected this cycle: Mistral Medium 3.5's resident size (64 GB → 80 GB,
