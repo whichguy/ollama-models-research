@@ -26,21 +26,23 @@ bandwidth), across 7 agentic roles. Refreshed roughly every 10 days (the
 
 ## 📌 Latest refresh
 
-**2026-08-01** — 1 role pick changed. Code-implementer's **smaller pick**
-moved from Devstral Small 2 to **Ornith-1.0-9B** (deepreinforce-ai, dense
-9B, released 2026-06-25): 69.4% SWE-bench Verified at ~5.6 GB Q4 — higher
-score at roughly a third of the memory of the prior pick. Devstral Small 2
-remains a fully valid alternative for its longer track record in production
-agentic tool-calling scaffolds. All 6 other role picks unchanged. Also
-corrected this cycle: Mistral Medium 3.5's resident size (64 GB → 80 GB,
-which also revises its tok/s ceiling down to ~6-8 on this hardware) and
-Ollama's current stable version (v0.32.1 → v0.32.5, notably adding native
-MLX support for Laguna XS 2.1 on Apple GPUs). Note: the prior refresh
-commit (`da85bc3`, 2026-07-21) shipped without a structured `ROLE PICKS`
-block — a recurrence of the gap OPERATIONS.md §4 already documents (the
-scheduled trigger's own stored instructions don't yet embed this repo's
-commit format). See [`ollama-models-2026-08.md`](./ollama-models-2026-08.md)
-for full detail.
+**2026-08-11** — 1 role pick changed. Code-implementer's **top pick** moved
+from Laguna XS 2.1 (70.9% SWE-bench Verified) to **Ornith-1.0-35B**
+(deepreinforce-ai, MoE 35B/~3B active, 75.6% SWE-bench Verified — score
+newly confirmed against primary + independent secondary sources this cycle,
+was `[unverified]` and not promoted last cycle). Comparable resident size
+(~21 GB vs ~20 GB) and comparable-or-better M5 Max throughput per fresh
+oMLX benchmark data, so the higher score isn't bought with materially worse
+latency. Laguna XS 2.1 remains a fully valid alternative with a longer
+field track record. All 6 other role picks unchanged. Two brand-new
+releases from this window — Meta's Muse Glimmer (dense 30B, Aug 10) and
+NVIDIA's Nemotron 3.5 Lightning (30B-A3B MoE, Aug 11) — were evaluated and
+explicitly **not** promoted: both are less than 48 hours old at time of
+writing with no field track record, and neither cleanly beats a current
+pick on this doc's headline benchmark. See
+[`ollama-models-2026-08.md`](./ollama-models-2026-08.md) for full detail,
+including the arithmetic-gate flag on Nemotron 3.5 Lightning's listed
+quantized size.
 
 *(This section must be updated by every refresh commit — research or
 process-only — with the date and a 1–3 line summary. See the "README sync
