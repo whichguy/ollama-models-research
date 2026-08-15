@@ -245,3 +245,46 @@ cycle. For this kind of update:
 - Update the specific facts that changed (tables, sources, the "Last updated"
   date) directly in place — same churn-control principle as any refresh:
   touch what changed, leave accurate stable prose alone.
+
+## 10. The scheduled trigger's stored prompt cannot be edited from within a session — `TRIGGER_PROMPT.md` is the workaround
+
+§4 already established that repo-doc updates don't propagate back into the
+trigger's stored instructions automatically. As of 2026-08-15 that gap has a
+concrete, checked-in fix: **`TRIGGER_PROMPT.md`** at the repo root holds a
+corrected, ready-to-paste replacement for the stored prompt, and its own
+header explains why (the stored prompt still said `ollama-models-${YM}.md`
+and a bare `git commit -m "refresh: ${TODAY}"` — both long superseded here —
+and had no instruction to read this repo's own governance docs before
+starting, which is how that drift went uncorrected for cycles).
+
+**Confirmed no session tool can apply it directly:** `CronList`/`CronCreate`
+are session-only, expire after 7 days, and don't govern this routine (checked
+again 2026-08-15, same conclusion as §4's original 2026-07-18 check). A
+broader `ToolSearch` for trigger/schedule-configuration tools also came up
+empty. The trigger lives entirely in a platform UI outside any tool surface
+available here.
+
+**What this means for a future agent running this routine:**
+- You cannot fix the stored prompt yourself. Don't spend time searching for a
+  tool to do it — this has been checked twice, at two different dates, with
+  the same result.
+- What you *can* and *should* do: follow Step 0's mandate (read `README.md` /
+  `COMMIT_FORMAT.md` / `OPERATIONS.md` before anything else) regardless of
+  what the stored prompt's own text says, exactly as `TRIGGER_PROMPT.md`
+  itself instructs — this repo's docs are the ground truth whether or not the
+  external prompt has caught up.
+- If you notice `TRIGGER_PROMPT.md`'s content has drifted from what
+  `COMMIT_FORMAT.md`/`OPERATIONS.md` actually require (e.g. a future process
+  change wasn't mirrored into it), update `TRIGGER_PROMPT.md` in the same
+  commit as the process change, and say so in `LEARNED` — don't let this file
+  become the next stale artifact it was written to replace.
+- If a session ever *does* gain a tool capable of reading/writing the actual
+  trigger config, apply `TRIGGER_PROMPT.md` directly and update its own
+  "Status" line to record that — but do not assume such a tool exists without
+  checking; verify via `ToolSearch` first, the way this section's own
+  investigation did.
+
+**For a human operator:** `TRIGGER_PROMPT.md`'s "Status" line says whether the
+correction has been applied yet. If it still says "drafted, not yet applied,"
+copy the fenced prompt block into the trigger's configuration UI, then update
+that status line (a small follow-up commit, or ask an agent to do it).

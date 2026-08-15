@@ -52,6 +52,13 @@ automatically every cycle instead of only when asked about. Also
 re-confirmed DeepSeek V4-Flash and V4 Pro (GA 2026-08-12) as cloud-only by
 Ollama's own tag listing, not just by size arithmetic.
 
+**Process note, 2026-08-15 (0 picks changed):** added `TRIGGER_PROMPT.md` — a
+corrected, checked-in replacement for the *external* scheduled trigger's
+stored prompt, which still referenced the retired per-month file convention
+and had no instruction to read this repo's own governance docs first. No
+in-session tool can apply it directly (confirmed — see `OPERATIONS.md` §10);
+it's staged for a human operator to paste into the trigger config manually.
+
 *(This section must be updated by every refresh commit — research or
 process-only — with the date and a 1–3 line summary. See the "README sync
 rule" in `COMMIT_FORMAT.md`. It exists so anyone landing here gets the
@@ -64,6 +71,7 @@ current picture without digging through commit history.)*
 | `ollama-models.md` | **The single living research document.** Always represents the current state — updated in place every refresh, never copied to a new file. There is no per-month or per-date variant; full change history lives in `git log -- ollama-models.md` (see "Why one file" below). |
 | `COMMIT_FORMAT.md` | Required commit message format, and the git-history-pull protocol every run starts with (`PRIOR STATE`, `ROLE PICKS`, SHA citations). |
 | `OPERATIONS.md` | Environment quirks and execution rules discovered while actually running this routine — read alongside `COMMIT_FORMAT.md`, not instead of it. |
+| `TRIGGER_PROMPT.md` | Canonical, versioned copy of what the *external* scheduled trigger's stored prompt should say. No in-session tool can read or write that trigger config directly — see `OPERATIONS.md` §10 — so this file exists to keep the correction from being lost, and to give a human operator a ready-to-paste block. Check its "Status" line to see if it's been applied yet. |
 
 ## Why one file, not one per month
 
