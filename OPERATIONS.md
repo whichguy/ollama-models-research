@@ -174,3 +174,38 @@ makes low-signal commits (`0 picks changed`) scannable at a glance, and
 Step 0's 20-commit window has ample headroom before same-day clusters would
 crowd out genuinely older history. If a future reviewer wonders why the log
 looks dense on one date, this is why.
+
+## 8. Single research file — do NOT create `ollama-models-${YM}.md`
+
+The scheduled trigger's own stored instructions (as of every run through
+2026-08-11) say: `Filename: ollama-models-${YM}.md at the repo root... If a
+file for the current ${YM} exists, overwrite it — one file per month.` **Do
+not follow that instruction literally.** As of 2026-08-15 this repo
+consolidated to a single file, `ollama-models.md`, updated in place on
+every refresh — see `COMMIT_FORMAT.md`'s "Single research file, not
+one-per-month" section for the reasoning (short version: git history
+already is the per-cycle record via the Step 0 protocol; a second,
+file-based history mechanism was pure redundancy and made "what's current"
+ambiguous — a real user complaint that triggered this change).
+
+**What to actually do on a scheduled run, regardless of what the trigger's
+stored prompt says about filenames:**
+1. Update `ollama-models.md` in place. Never write `ollama-models-2026-09.md`
+   or any other dated variant.
+2. Replace the "Recent Changes" callout near the top of the file wholesale
+   (it describes only the most recent cycle) — don't append to it, don't
+   leave stale content from a prior cycle sitting alongside the new callout.
+3. The commit's `Refs:` line is `ollama-models.md`, not a dated filename.
+4. This is exactly the class of drift OPERATIONS.md §4 already warns
+   about: repo docs don't propagate back into the trigger's stored
+   instructions automatically. If a future run's context shows the trigger
+   still instructing a per-month filename, that's expected — this file
+   (and `COMMIT_FORMAT.md`, and `README.md`) is what supersedes it, per
+   the standing rule at the top of `README.md`. Don't "reconcile" by
+   creating a new dated file to satisfy both — the repo docs win.
+
+**Migration record:** `ollama-models-2026-07.md` and
+`ollama-models-2026-08.md` were removed from the working tree in the
+2026-08-15 consolidation commit. Their content is not lost — `git log
+--follow -- ollama-models.md` or `git show <sha>:ollama-models-2026-08.md`
+against a pre-consolidation commit still retrieves them in full.

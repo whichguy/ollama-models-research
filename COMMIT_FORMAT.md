@@ -100,7 +100,7 @@ CONCLUSION
 <2–4 sentences: net effect of this run — what changed and why, what the
 reader should act on immediately (new pulls, retirements, caveats).>
 
-Refs: ollama-models-YYYY-MM.md
+Refs: ollama-models.md
 ```
 
 Subject line carries `N picks changed` (count of `changed from` lines in
@@ -114,6 +114,24 @@ Step 0's grep finds them, but should say so plainly in `INTENT` and set
 model research, e.g. `LEARNED: - none — process fix only`.
 
 ---
+
+## Single research file, not one-per-month
+
+As of 2026-08-15, this repo tracks recommendations in exactly **one** file,
+`ollama-models.md`, updated in place every refresh. Earlier revisions of
+this doc (and the scheduled trigger's own stored instructions — see
+OPERATIONS.md's note on this) called for a new `ollama-models-YYYY-MM.md`
+per calendar month, "overwritten in place if the routine fires more than
+once in a month." That pattern was redundant: this file's entire Step 0
+protocol already makes git history the authoritative record of every
+change, so a second, file-based history mechanism just fragmented "what's
+current" across files and made it easy to link the wrong one. **Every
+`Refs:` line in a refresh commit should point to `ollama-models.md` — never
+to a dated filename.** If you are an agent about to create
+`ollama-models-YYYY-MM.md` because an external trigger's stored
+instructions say to, stop: update `ollama-models.md` in place instead. This
+file (along with OPERATIONS.md and README.md) supersedes that instruction,
+per the standing rule stated at the top of README.md.
 
 ## README sync rule
 
@@ -226,10 +244,14 @@ new entrant this cycle (top code-implementer pick, released 2026-07-02).
 Kimi K2.7 Code is cloud-only — watch for a GGUF build next cycle. All other
 picks are first-assignment, not yet tested against a prior baseline.
 
-Refs: ollama-models-2026-07.md
+Refs: ollama-models.md
 ```
 
 (Note: figures in this example were touched up post-hoc to match corrections
 made in later commits — e.g. Llama 4 Scout's size — so this stays internally
 consistent as a teaching example. The actual `09bba13` commit predates this
-spec and does not contain this body at all — see "Baseline anchor" above.)
+spec and does not contain this body at all — see "Baseline anchor" above.
+The `Refs:` line is also touched up: the real 2026-07-18 commit referenced
+`ollama-models-2026-07.md`, a dated filename from before the 2026-08-15
+single-file consolidation — see "Single research file, not one-per-month"
+above. Use `ollama-models.md` in all new commits regardless of date.)
