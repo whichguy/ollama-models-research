@@ -61,6 +61,48 @@ and land directly on the original reasoning instead of re-deriving it.
 
 ---
 
+## Step 0.5 (every run, right after Step 0, before broader research):
+## re-check the Pending Releases watchlist
+
+`ollama-models.md` §2 maintains a **"Pending Releases Worth Re-Checking Next
+Cycle"** table — promised-but-unshipped models that would (a) actually fit the
+128 GB envelope and (b) plausibly challenge a current pick, if and when they
+ship. This step exists because of a concrete gap: on 2026-08-12, Qwen3.8-Max's
+2.4T-param open weights shipped — one day after that cycle's refresh — but the
+size-comparable companion model that would have actually mattered for a role
+pick, Qwen3.8-27B, did not, and nothing caught that until a user asked about it
+days later. The fix isn't "research harder" (a 10-day cadence will always miss
+things that land the day after a refresh) — it's making sure a *known* pending
+item gets a systematic, explicit re-check every cycle instead of depending on
+broad research incidentally stumbling back onto it.
+
+**Before starting broader research each cycle:**
+1. Read the current "Pending Releases" table in `ollama-models.md` §2.
+2. For each entry, directly check its current status (Ollama library page,
+   vendor blog/HF, GitHub PR — whatever the entry's own "last checked" method
+   was) — don't rely on general search turning it up.
+3. If it shipped: evaluate it as a normal candidate against the pick(s) it was
+   flagged as threatening, following the usual verification gates. Remove it
+   from the table regardless of outcome (promoted, evaluated-and-rejected, or
+   dead) and note the resolution in `LEARNED`.
+4. If it still hasn't shipped: update its "Last checked" date, leave it in the
+   table. Do not let an entry go stale without an updated date — an unchanged
+   date across multiple cycles is itself a signal (worth a one-line note if a
+   promise clearly missed its own timeline).
+5. If a **new** promised-but-unshipped, would-actually-fit, would-actually-matter
+   model is spotted during this cycle's broader research, add it to the table
+   before finishing — this is how the list stays current rather than becoming
+   another stale artifact.
+
+**Scope discipline:** most promised-but-unshipped models do NOT belong on this
+list — only ones where shipping would plausibly change a role pick. A 2.4T
+model that's promised weights will never fit 128 GB regardless of whether it
+ships, so it doesn't go on this list even while "pending" (it belongs in the
+regular cloud-only table once/if weights land). Padding this list with
+non-actionable items defeats its purpose as a forcing function.
+
+---
+
 ## Commit message template
 
 ```

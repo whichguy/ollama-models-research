@@ -43,6 +43,15 @@ pick on this doc's headline benchmark. See
 [`ollama-models.md`](./ollama-models.md) for full detail, including the
 arithmetic-gate flag on Nemotron 3.5 Lightning's listed quantized size.
 
+**Interim fact-check, 2026-08-15 (0 picks changed):** Qwen3.8-Max's 2.4T-param
+open weights shipped 2026-08-12, but that model is ~1.2+ TB at Q4 and was
+never a viable local candidate. The size-comparable companion that would
+actually matter, Qwen3.8-27B, still hasn't shipped — now tracked in a new
+"Pending Releases" watchlist in `ollama-models.md` §2 so it's re-checked
+automatically every cycle instead of only when asked about. Also
+re-confirmed DeepSeek V4-Flash and V4 Pro (GA 2026-08-12) as cloud-only by
+Ollama's own tag listing, not just by size arithmetic.
+
 *(This section must be updated by every refresh commit — research or
 process-only — with the date and a 1–3 line summary. See the "README sync
 rule" in `COMMIT_FORMAT.md`. It exists so anyone landing here gets the

@@ -209,3 +209,39 @@ stored prompt says about filenames:**
 2026-08-15 consolidation commit. Their content is not lost — `git log
 --follow -- ollama-models.md` or `git show <sha>:ollama-models-2026-08.md`
 against a pre-consolidation commit still retrieves them in full.
+
+## 9. Pending Releases watchlist, and interim fact-checks between scheduled cycles
+
+Same day as the single-file consolidation (§8), a live user question surfaced
+a real gap: on 2026-08-12, Qwen3.8-Max's 2.4T-param open weights shipped — one
+day after the 2026-08-11 scheduled refresh. That model was never a viable
+local candidate regardless (too large by nearly an order of magnitude — see
+`ollama-models.md` §1), but its *existence* raised a fair question: was
+something actually pick-relevant missed? The honest answer: the
+pick-relevant companion model, Qwen3.8-27B, still hadn't shipped, so nothing
+was actually missed — but there was also no systematic mechanism that would
+have caught it if it *had* shipped, short of someone asking. `COMMIT_FORMAT.md`'s
+new **Step 0.5** and `ollama-models.md` §2's **"Pending Releases Worth
+Re-Checking Next Cycle"** table fix that: a short, deliberately-scoped list of
+promised-but-unshipped models that would actually matter, explicitly
+re-verified every cycle rather than left to prose that doesn't get revisited.
+
+**Interim fact-checks between scheduled cycles:** this session also
+demonstrated a pattern worth naming — a live user question prompted checking
+and correcting the doc *between* scheduled refreshes, not as a full research
+cycle. For this kind of update:
+- Still use the `refresh: YYYY-MM-DD` commit format and `ROLE PICKS` block
+  (Step 0 / this file's conventions apply regardless of what triggered the
+  update) — `0 picks changed` is fine and expected for a fact-check that
+  doesn't move a recommendation.
+- **Do not wholesale-replace** the "Recent Changes" callout the way a full
+  scheduled refresh does (see §8's rule 2) — that callout describes a specific
+  dated refresh cycle and rewriting it to also cover an ad hoc interim check
+  would blur two different things happening on two different days. Instead,
+  add a clearly-labeled, dated addendum immediately after it (see the
+  2026-08-15 interim-fact-check note in `ollama-models.md` for the pattern).
+  The *next* full scheduled refresh folds both into one fresh callout as
+  usual.
+- Update the specific facts that changed (tables, sources, the "Last updated"
+  date) directly in place — same churn-control principle as any refresh:
+  touch what changed, leave accurate stable prose alone.
