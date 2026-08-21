@@ -231,7 +231,7 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
   this refresh.** None of these releases specifically target Ornith, Qwen3.8,
   Llama 4, DeepSeek-R1, or KV-cache handling.
 - **MoE-A3B behaviour:** Models like **Ornith-1.5-35B-A3B** (top code-implementer
-  pick, 35B/~3B active, ~21 GB Q4), **Laguna XS 2.1** (33B/3B active, ~20 GB), and
+  pick, 35B/~3B active, ~23 GB Q4), **Laguna XS 2.1** (33B/3B active, ~20 GB), and
   **Qwen 3.5 30B-A3B** (30B/3B active, ~17 GB) activate only ~3B parameters per
   token despite loading a much larger weight set — 30B-class quality at 40–110+
   tok/s on M5 Max depending on runtime. This remains the highest quality-per-GB
