@@ -26,31 +26,40 @@ bandwidth), across 7 agentic roles. Refreshed roughly every 10 days (the
 
 ## 📌 Latest refresh
 
-**2026-08-11** — 1 role pick changed. Code-implementer's **top pick** moved
-from Laguna XS 2.1 (70.9% SWE-bench Verified) to **Ornith-1.0-35B**
-(deepreinforce-ai, MoE 35B/~3B active, 75.6% SWE-bench Verified — score
-newly confirmed against primary + independent secondary sources this cycle,
-was `[unverified]` and not promoted last cycle). Comparable resident size
-(~21 GB vs ~20 GB) and comparable-or-better M5 Max throughput per fresh
-oMLX benchmark data, so the higher score isn't bought with materially worse
-latency. Laguna XS 2.1 remains a fully valid alternative with a longer
-field track record. All 6 other role picks unchanged. Two brand-new
-releases from this window — Meta's Muse Glimmer (dense 30B, Aug 10) and
-NVIDIA's Nemotron 3.5 Lightning (30B-A3B MoE, Aug 11) — were evaluated and
-explicitly **not** promoted: both are less than 48 hours old at time of
-writing with no field track record, and neither cleanly beats a current
-pick on this doc's headline benchmark. See
-[`ollama-models.md`](./ollama-models.md) for full detail, including the
-arithmetic-gate flag on Nemotron 3.5 Lightning's listed quantized size.
+**2026-08-21** — 2 picks changed (both the top and smaller code-implementer
+picks). DeepReinforce/Ornith shipped the **Ornith-1.5** family 2026-08-19/20,
+1–2 days before this refresh, extending the self-scaffolding training
+approach into a full self-improvement loop. **Ornith-1.5-35B-A3B** (79.0%
+SWE-bench Verified, primary HF source) replaces **Ornith-1.0-35B** (75.6%) as
+top pick; **Ornith-1.5-9B** (70.6%) replaces **Ornith-1.0-9B** (69.4%) as
+smaller pick — same OpenHands-harness methodology as the prior generation, a
+clean apples-to-apples comparison. Both Ollama tags confirmed live
+(`ornith-1.5:35b` 23 GB, `ornith-1.5:9b` 6.6 GB). Caveat: self-reported
+scores with no third-party reproduction yet, and no fresh M5 Max throughput
+measurement (too new) — the prior Ornith-1.0 generation remains a fully
+valid alternative with a real field track record. All 5 other role picks
+unchanged. Separately, **Qwen3.8-27B** shipped 2026-08-14 — resolving the
+"Pending Releases" watchlist entry — but was evaluated and **not** promoted
+for generalist/judge: no published SWE-bench Verified score, and field
+reports of a severe "overthinking" latency regression (22K+ reasoning
+tokens on trivial prompts) at its default `reasoning_effort=xhigh`. GLM-5.3
+and Llama 5 were also evaluated and excluded — both stay cloud-only-scale
+regardless of benchmark claims. See [`ollama-models.md`](./ollama-models.md)
+for full detail, including the arithmetic gates and every source cited.
+
+**Prior refresh, 2026-08-11** — 1 role pick changed. Code-implementer's
+**top pick** moved from Laguna XS 2.1 (70.9% SWE-bench Verified) to
+Ornith-1.0-35B (75.6% SWE-bench Verified) — since superseded by Ornith-1.5-35B-A3B
+above. Two brand-new releases from that window — Meta's Muse Glimmer and
+NVIDIA's Nemotron 3.5 Lightning — were evaluated and not promoted; both
+remain not-promoted as of this refresh, re-checked with no new data.
 
 **Interim fact-check, 2026-08-15 (0 picks changed):** Qwen3.8-Max's 2.4T-param
 open weights shipped 2026-08-12, but that model is ~1.2+ TB at Q4 and was
-never a viable local candidate. The size-comparable companion that would
-actually matter, Qwen3.8-27B, still hasn't shipped — now tracked in a new
-"Pending Releases" watchlist in `ollama-models.md` §2 so it's re-checked
-automatically every cycle instead of only when asked about. Also
-re-confirmed DeepSeek V4-Flash and V4 Pro (GA 2026-08-12) as cloud-only by
-Ollama's own tag listing, not just by size arithmetic.
+never a viable local candidate. The size-comparable companion, Qwen3.8-27B,
+has since shipped and been evaluated — see the 2026-08-21 entry above. Also
+confirmed DeepSeek V4-Flash and V4 Pro as cloud-only by Ollama's own tag
+listing, not just by size arithmetic.
 
 **Process note, 2026-08-15 (0 picks changed):** added `TRIGGER_PROMPT.md` — a
 corrected, checked-in replacement for the *external* scheduled trigger's

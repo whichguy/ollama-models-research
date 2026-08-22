@@ -1,7 +1,7 @@
 # Ollama Models Research — M5 Max 128 GB
 
-**Last updated:** 2026-08-15 (interim fact-check — see note below; last full refresh 2026-08-11) · **Hardware target:** Apple M5 Max · 128 GB unified memory · 614 GB/s bandwidth
-**Most recent full research window:** Last 60 days (2026-06-12 → 2026-08-11)
+**Last updated:** 2026-08-21 (full refresh) · **Hardware target:** Apple M5 Max · 128 GB unified memory · 614 GB/s bandwidth
+**Most recent full research window:** Last 60 days (2026-06-22 → 2026-08-21)
 
 > This is a **single living document** — it is updated in place every refresh
 > (roughly every 10 days: the 1st, 11th, and 21st of each month). There is no
@@ -10,14 +10,14 @@
 > Step 0 protocol to reconstruct what changed and when. If you're reading
 > this in the GitHub UI, "History" on this file is the changelog.
 
-## Current Picks at a Glance (as of 2026-08-15)
+## Current Picks at a Glance (as of 2026-08-21)
 
 The single fastest way to answer "what's the latest recommendation right now" — no need to read further unless you want the rationale.
 
 | Role | Top pick | Smaller pick |
 |------|----------|---------------|
 | 3.1 Generalist agentic default | **Qwen3.6-27B** (~17 GB) | Gemma 4 12B Unified (~7.6 GB) |
-| 3.2 Code implementer | **Ornith-1.0-35B** (~21 GB) ⟵ *changed 2026-08-11* | Ornith-1.0-9B (~5.6 GB) |
+| 3.2 Code implementer | **Ornith-1.5-35B-A3B** (~23 GB) ⟵ *changed 2026-08-21* | Ornith-1.5-9B (~6.6 GB) ⟵ *changed 2026-08-21* |
 | 3.3 Code debugger | **DeepSeek-R1-Distill-Qwen-32B** (~20 GB) | Qwen3.6-27B, thinking mode (~17 GB) |
 | 3.4 Plan orchestrator | **Llama 4 Scout** (~67 GB) | Qwen3.6-27B (~17 GB) |
 | 3.5 LLM-as-judge / verifier | **Qwen3.6-27B** (~17 GB) | Gemma 4 12B Unified (~7.6 GB) |
@@ -28,91 +28,92 @@ Every pick below is cross-referenced by section number (§3.1–§3.7). "Changed
 
 ---
 
-> **Recent Changes (as of the 2026-08-11 refresh, commit `737643c`; previous state was commit `20526fc`):**
+> **Recent Changes (as of the 2026-08-21 refresh; previous state was commit
+> `5d76cdae` — no model-pick commit since 737643c on 2026-08-11):**
 >
-> **One role pick changed.** Code-implementer's **top pick** moves from **Laguna XS
-> 2.1** (70.9% SWE-bench Verified) to **Ornith-1.0-35B** (75.6% SWE-bench Verified)
-> — a sibling of the existing smaller pick (Ornith-1.0-9B) that this doc marked
-> `[unverified]` and did not promote last cycle because no SWE-bench Verified score
-> could be found anywhere. This cycle the score resolves against DeepReinforce's own
-> blog/HF model card (primary, methodology: OpenHands harness, temp=1.0, top_p=0.95,
-> 256K context, averaged over 5 runs) and is independently matched by BenchLM.ai
-> (secondary) — passes all three verification gates. It is MoE (35B total / ~3B
-> active, same pattern as Laguna), its Ollama tag `ornith:35b` resolves at 21 GB
-> (vs Laguna's ~20 GB), and fresh M5 Max throughput data (oMLX community benchmark,
-> dated 2026-07-02) shows 77–123 tok/s depending on batch size — comparable to or
-> faster than Laguna's own newly-measured 87–107 tok/s (oMLX, 2026-08-10/11) — so
-> this is not a case of a higher score bought with materially worse latency. See §3.2.
+> **Code-implementer's Top and Smaller picks both changed** — the entire pair
+> moves to the next generation of the same MIT-licensed family. **Top pick:**
+> **Ornith-1.5-35B-A3B** (79.0% SWE-bench Verified) replaces **Ornith-1.0-35B**
+> (75.6%). **Smaller pick:** **Ornith-1.5-9B** (70.6%) replaces **Ornith-1.0-9B**
+> (69.4%). DeepReinforce/Ornith shipped the 1.5 family 2026-08-19/20 — literally
+> 1–2 days before this refresh — extending the self-scaffolding training approach
+> into a full self-improvement loop (the model proposes its own training tasks in
+> addition to its own scaffolds). Both new scores are confirmed directly against
+> Ornith's own Hugging Face model cards (primary), using the **same OpenHands-harness
+> methodology** (temp=1.0, top_p=0.95, 256K context, avg of 5 runs, anti-reward-hacking
+> controls) as the 1.0 generation this doc already trusted — a clean apples-to-apples
+> comparison, not a benchmark-suite change. Both Ollama tags resolve and were fetched
+> directly: `ornith-1.5:35b` at 23 GB (vs 1.0's 21 GB), `ornith-1.5:9b` at 6.6 GB (vs
+> 1.0's 5.6 GB) — the ~10–18% size increase passes the arithmetic gate (still
+> consistent with a Q4-class quant at this parameter count) and is plausibly explained
+> by added multimodal/vision input support. **Caveat, stated plainly:** these are
+> **self-reported scores with no independent third-party reproduction yet** (same
+> pattern the 1.0 generation was in in its first cycle, before BenchLM.ai
+> independently matched it — see 737643c), and **no fresh M5 Max throughput
+> measurement exists yet** for the 1.5 family (too new) — the tok/s table below
+> extrapolates from the 1.0 family's directly-measured oMLX data by architecture
+> analogy (same MoE-A3B pattern, marginally larger footprint), marked accordingly.
+> Ornith-1.0-35B and Ornith-1.0-9B remain fully valid alternatives with real field
+> track records (5+ and 3+ weeks of production use respectively) and directly-measured
+> throughput. See §3.2.
 >
 > **No other role's Top or smaller pick changed.** Generalist, code-debugger,
 > plan-orchestrator, judge, document-understanding, and vision all keep their
-> prior picks, including code-implementer's smaller pick (Ornith-1.0-9B, unchanged).
+> prior picks.
 >
-> **Two brand-new releases evaluated and NOT promoted — both shipped in the last
-> 24–48 hours of this window:**
-> 1. **Muse Glimmer** (Meta Superintelligence Labs, dense 30B, released 2026-08-10,
->    Apache 2.0) — Meta's own model card lists 76.0% SWE-bench Verified, just
->    *below* Qwen3.6-27B's 77.2%, and a secondary reproduction (kingy.ai) shows a
->    genuinely mixed picture: Glimmer wins big on agentic/tool-use benchmarks
->    (MCP-Atlas 75.5 vs Qwen's 62.5, DeepSearch QA, GAIA2, WildClawBench) but loses
->    on SWE-bench Verified, TerminalBench 2.1, and OSWorld-Verified. The reproduction
->    source itself flags a methodology concern: "Meta selected the more favorable of
->    a competitor's self-reported score or its own reproduction." Combined with zero
->    field track record (one day old) and no M5 Max tok/s measurement yet, this is a
->    "watch closely, don't promote yet" case, not a clean win. See §2 and §3.1.
-> 2. **NVIDIA Nemotron 3.5 Lightning** (30B-A3B MoE, released 2026-08-11 — literally
->    the day of this refresh — OpenMDW-1.1 license) — NVIDIA's own HF card lists
->    only 52.80% SWE-bench Verified, well below every current code-implementer pick,
->    despite fast claimed throughput ("4× higher throughput vs. similar open models,"
->    unverified independently this cycle). Its Ollama `q4_K_M`-labeled tag lists
->    25 GB for a 30B model — **arithmetic gate flag:** that implies ~6.7 bits/weight,
->    well above typical Q4_K_M (~4.5–5 bpw); plausibly explained by its hybrid
->    Mamba+Transformer architecture keeping Mamba layers at higher precision, but
->    not confirmed this cycle — noting the discrepancy rather than silently
->    repeating the "4-bit" label. Not promoted to any role. See §2.
+> **Qwen3.8-27B shipped 2026-08-14 — evaluated for generalist/judge, NOT promoted.**
+> This resolves the "Pending Releases" watchlist entry tracked since 2026-08-15 (see
+> §2). Qwen3.8-27B is the same 27B/dense-with-hybrid-attention architecture as
+> Qwen3.6-27B (post-training-only upgrade, not a new base model) and posts real gains
+> on agentic benchmarks per Alibaba's own model card: Terminal-Bench 2.1 63.4→73.0,
+> OSWorld-Verified 63.9→84.3, SWE-bench Pro 53.5→61.7. **It does not clear this doc's
+> verification bar for a promotion this cycle, for two independent reasons:** (1)
+> Alibaba has **not published a SWE-bench Verified score** for it at all — only
+> SWE-bench Pro — so there is no apples-to-apples comparison against this doc's
+> headline metric (Qwen3.6-27B's tracked 77.2% SWE-bench Verified.); (2) multiple
+> independent field reports describe a real "overthinking" regression: the model
+> **defaults to `reasoning_effort=xhigh`**, and one developer reported 22,276
+> reasoning tokens and 21 minutes of latency on a single trivial SVG-generation
+> prompt — a severe throughput regression for exactly the agentic loops this doc's
+> selection criterion weighs (throughput is part of quality; many completions per
+> session). Community reports also flag chat-template bugs and higher-than-expected
+> context memory use. The model is worth re-testing at `reasoning_effort=low` or
+> `medium` next cycle once the template issues settle and field data accumulates —
+> not a rejection of the model outright, a "not yet" on the evidence available this
+> cycle. Ollama tag confirmed: `qwen3.8:27b` (Q4_K_M, 18 GB). See §2 and §3.1.
 >
 > **Considered and rejected (no pick impact):**
-> - **DeepSeek V4-Flash** (284B total / 13B active MoE, Ollama tag confirmed present)
->   — arithmetic gate: 284B × ~4.5 bpw ÷ 8 ≈ 160 GB at Q4, exceeds 128 GB regardless
->   of exact listed size (which could not be fetched this cycle — flagging as
->   "not independently tag-verified" rather than omitting). **Cloud-only by
->   arithmetic.** See §1.
-> - **Qwen3.8-Max** (2.4T total, ~95B active) — officially launched 2026-08-03, but
->   open weights have **not shipped** as of this cycle despite a "within about a
->   week" promise reported 2026-08-10; no Ollama tag exists (`ollama.com/library/
->   qwen3.8-max` returns 404). Not a locally-runnable candidate at all.
-> - **Laguna S 2.1** (Poolside, 118B/8B-active — a different, larger sibling of the
->   tracked Laguna XS 2.1) — HF page shows an August 2026 weights-only checkpoint
->   refresh ("supersedes the earlier version... weights have changed, not only the
->   config"), exact date unstated. Not evaluated as a pick candidate — it's a
->   different model, not an update to the tracked Laguna XS 2.1, which shows no
->   equivalent HF-side update this cycle.
+> - **GLM-5.3** (Z.ai, Aug 14, 2026) — Z.ai's own strongest-open-weights-coding claim
+>   to date, but inherits GLM-5.2's unchanged 743B total / ~40B active MoE base (no
+>   retrain — every gain is from post-training), so it stays **cloud-only by
+>   arithmetic regardless of benchmark score** (743B × ~4.5 bpw ÷ 8 ≈ 418 GB at Q4).
+>   Weights are also not public yet — Z.ai states "about two weeks" from launch for a
+>   safety-hardened release. Not added to the Pending Releases watchlist per that
+>   list's own scope rule: a model this oversized wouldn't become a local candidate
+>   even once weights ship. See §1/§2.
+> - **Llama 5** (Meta, ~600B total MoE, 5M-token context, native video/audio) — far
+>   exceeds the envelope (≈338 GB at Q4) and no smaller "Scout"-class sibling has
+>   been released or announced; Llama 4 Scout (109B/17B active) remains the only
+>   locally-viable Meta model. Added to the "what exceeds 128 GB" table for
+>   completeness. See §1.
+> - **Muse Glimmer** and **NVIDIA Nemotron 3.5 Lightning** — both evaluated last
+>   cycle (see 737643c) and re-checked this cycle: no new SWE-bench Verified data or
+>   M5 Max throughput measurement surfaced for either. Nemotron 3.5 Lightning does
+>   have a new independent-analysis data point (Artificial Analysis Intelligence
+>   Index score of 24, on par with gpt-oss-120b at a quarter the active parameters;
+>   Elo 824 on agentic benchmarks) but its SWE-bench Verified score (52.80%) is
+>   unchanged and still well below every code-implementer pick — status unchanged,
+>   not promoted. See §2.
 >
-> **Previously-recommended model beaten this cycle:** **Laguna XS 2.1** loses the
-> code-implementer top-pick slot to Ornith-1.0-35B (see above) — not deprecated,
-> remains a fully valid alternative with a longer field track record (shipped
-> 2026-07-02, over five weeks of production use vs. Ornith-1.0-35B's less-tested
-> history) and its own newly-measured, very competitive M5 Max throughput. See §3.2.
+> **Previously-recommended models beaten this cycle:** **Ornith-1.0-35B** and
+> **Ornith-1.0-9B** lose their Top/Smaller code-implementer slots to their own 1.5
+> successors (see above) — not deprecated, both remain fully valid alternatives with
+> real field track records the 1.5 generation doesn't have yet. See §3.2.
 >
 > *For changes before this cycle, don't scroll further down in this file — this
 > callout is replaced wholesale on every refresh. Use `git log -- ollama-models.md`
 > or the `refresh:` commits described in `COMMIT_FORMAT.md` to see the full history,
 > including cycles where 0 picks changed.*
-
-> **Interim fact-check (2026-08-15, no pick changes, prompted by a user question
-> about Qwen3.8) — this note is additive to the callout above, not a replacement:**
-> Qwen3.8-2.4T-A95B (the base model behind the Qwen3.8-Max API) shipped open
-> weights on 2026-08-12 — one day after the 2026-08-11 refresh above, so this
-> is genuinely new. It changes nothing: the model is ~1.2+ TB at Q4, off by
-> close to an order of magnitude versus the 128 GB envelope, so it was never a
-> plausible local candidate regardless of license status. The companion model
-> that *would* matter, **Qwen3.8-27B**, has still not shipped — now tracked
-> explicitly in §2's "Pending Releases" list so it gets re-checked automatically
-> next cycle instead of only when someone asks. Also re-confirmed this cycle:
-> DeepSeek V4-Flash and DeepSeek V4 Pro (GA as of 2026-08-12) are cloud-only by
-> Ollama's own `:cloud`-only tag listing, not just by size arithmetic — see §1.
-> Kimi K3's llama.cpp support (PR #26185) remains unmerged, unchanged from the
-> last refresh — checked as part of the same pass, no update needed to that entry.
 
 ---
 
@@ -143,9 +144,12 @@ other entries.
 | Llama 3.1 8B | Dense 8B | Q4_K_M / 8bit | ~82 | ~138 | ~230 (mlx_lm) / ~44–56 (oMLX 8bit, 1k–64k ctx)‡‡ |
 | Ornith-1.0-9B | Dense 9B | Q4_K_M / 4bit | ~75 (extrapolated†) | ~120 (extrapolated†) | **109.0 (oMLX, 4bit, 4K ctx, 2026-06-28)‡‡** — degrades to 44.4 at 195K ctx |
 | Qwen3.6-27B | Dense 27B | Q4_K_M | ~45 | ~70 | ~63 (X/community post, runtime unstated, 2026-08-11)‡‡ |
+| Qwen3.8-27B | Dense 27B, hybrid attention | Q4_K_M | ~44 (extrapolated‡, similar footprint to Qwen3.6) | ~68 (extrapolated‡) | *No M5 Max figure found this cycle — 1 week old at time of writing. Not promoted this cycle — see Recent Changes.* |
 | Qwen 3.5 30B-A3B | MoE 30B/3B active | Q4_K_M | ~45 | ~55 | ~68 (mlx_lm) |
 | Laguna XS 2.1 | MoE 33B/3B active | Q4_K_M / 4bit | ~43 | ~53§§ | **87–107 (oMLX, 4bit, 1K–4K ctx, 2026-08-10/11)‡‡** |
-| **Ornith-1.0-35B** | MoE 35B/~3B active | Q4_K_M / 4bit | ~42 (extrapolated†) | ~52 (extrapolated†) | **77.0–123.4 (oMLX, 4bit, batch 1×–8×, 2026-07-02)‡‡** |
+| **Ornith-1.5-35B-A3B** | MoE 35B/~3B active | Q4_K_M / 4bit | ~40 (extrapolated‡, analogy to 1.0) | ~50 (extrapolated‡) | *No fresh oMLX measurement yet — shipped 2026-08-19/20, 1–2 days before this refresh. Extrapolated from Ornith-1.0-35B's 77–123 tok/s (see below) adjusted ~5–8% down for the slightly larger 23 GB vs 21 GB footprint.* |
+| Ornith-1.0-35B | MoE 35B/~3B active | Q4_K_M / 4bit | ~42 (extrapolated†) | ~52 (extrapolated†) | **77.0–123.4 (oMLX, 4bit, batch 1×–8×, 2026-07-02)‡‡** |
+| Ornith-1.5-9B | Dense 9B | Q4_K_M / 4bit | ~72 (extrapolated‡) | ~115 (extrapolated‡) | *No fresh oMLX measurement yet — same "1–2 days old" caveat as the 35B row above. Extrapolated from Ornith-1.0-9B's 109.0 tok/s (4K ctx, below) adjusted ~5% down for the 6.6 GB vs 5.6 GB footprint.* |
 | DeepSeek-R1-Distill 32B | Dense 32B | Q4_K_M / 4bit | ~27 | ~45 | **27.6–28.9 (oMLX, 4bit, 1K ctx, 2026-07-15)‡‡** / ~60 (mlx_lm, older est.) |
 | Llama 4 Scout | MoE 109B/17B active | Q4_K_M | ~22 | ~26 | ~50 (mlx_lm, no fresh M5 Max row found this cycle) |
 | Llama 3.3 70B | Dense 70B | Q4_K_M / 4bit | ~12–18 | ~15–22 | **12.7–13.2 (oMLX, 4bit, 1K–4K ctx, 2026-07-20)‡‡** / ~7 (oMLX 8bit, older) |
@@ -155,6 +159,16 @@ other entries.
 — treat as directional, not measured. Ornith-1.0-35B's own oMLX row (77–123 tok/s)
 is real data but was not measured on the Ollama runtime specifically, hence its
 Ollama/Ollama-MLX columns remain extrapolated by analogy.
+
+‡ **New this cycle.** Ornith-1.5-35B-A3B and Ornith-1.5-9B shipped 2026-08-19/20,
+1–2 days before this refresh — no benchmark tool (oMLX or otherwise) has posted M5
+Max figures for them yet. All columns for these two rows are extrapolated by
+architecture analogy to the corresponding Ornith-1.0 model (same MoE-A3B or dense
+pattern, ~10–18% larger resident footprint), not measured. Re-check next cycle.
+Qwen3.8-27B's row is extrapolated the same way, by analogy to Qwen3.6-27B (same
+dense/hybrid-attention architecture, near-identical resident size) — it was
+evaluated and not promoted this cycle regardless (see Recent Changes), so this
+figure is informational only, not load-bearing for any pick.
 
 ‡‡ oMLX (https://omlx.ai) is a crowdsourced, individually-dated community benchmark
 database using its own MLX-based runner — a third, independent tool distinct from
@@ -203,17 +217,21 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
   Mistral Medium 3.5 at 80 GB), the uplift compresses toward zero — the oMLX
   measurement (7.1–7.2 tok/s) confirms this is a hard physical limit, not a
   software gap.
-- **Ollama v0.32.6–v0.32.9 (current as of 2026-08-11):** four releases landed
-  since v0.32.5 (2026-07-27): **v0.32.6** (Aug 4) ships Qwen3.5 speculative
-  decoding via its MTP head on Apple GPUs plus an OpenAI-wire-format streaming
-  rework; **v0.32.7** (Aug 10) introduces Muse Glimmer support, Apple/MLX-only at
-  first; **v0.32.8** (Aug 10, same day) extends Muse Glimmer to NVIDIA/AMD;
-  **v0.32.9** (Aug 11) adds NVIDIA Nemotron 3.5 Lightning support and fixes a
-  Muse Glimmer function-calling parser bug. **Current stable is v0.32.9.** None
-  of these releases touch Ornith, Llama 4, DeepSeek-R1, or KV-cache handling
-  directly.
-- **MoE-A3B behaviour:** Models like **Ornith-1.0-35B** (top code-implementer
-  pick, 35B/~3B active, ~21 GB Q4), **Laguna XS 2.1** (33B/3B active, ~20 GB), and
+- **Ollama v0.32.6–v0.32.14 (current as of 2026-08-21):** picking up from
+  v0.32.5 (2026-07-27): **v0.32.6** (Aug 4) ships Qwen3.5 speculative decoding
+  via its MTP head on Apple GPUs plus an OpenAI-wire-format streaming rework;
+  **v0.32.7** (Aug 10) introduces Muse Glimmer support, Apple/MLX-only at first;
+  **v0.32.8** (Aug 10, same day) extends Muse Glimmer to NVIDIA/AMD; **v0.32.9**
+  (Aug 11) adds NVIDIA Nemotron 3.5 Lightning support and fixes a Muse Glimmer
+  function-calling parser bug. Point releases through **v0.32.14** (~Aug 15)
+  changed `repeat_penalty`'s default from 1.1 to 1.0 (off) for models that
+  don't set it — matching other engines and speeding up speculative decoding —
+  plus ~7–8% faster NVFP4 MLX prefill on Qwen3.6/Muse Glimmer and Linux/Windows
+  MLX support coming online. **Current stable is v0.32.14; no v0.33 found as of
+  this refresh.** None of these releases specifically target Ornith, Qwen3.8,
+  Llama 4, DeepSeek-R1, or KV-cache handling.
+- **MoE-A3B behaviour:** Models like **Ornith-1.5-35B-A3B** (top code-implementer
+  pick, 35B/~3B active, ~23 GB Q4), **Laguna XS 2.1** (33B/3B active, ~20 GB), and
   **Qwen 3.5 30B-A3B** (30B/3B active, ~17 GB) activate only ~3B parameters per
   token despite loading a much larger weight set — 30B-class quality at 40–110+
   tok/s on M5 Max depending on runtime. This remains the highest quality-per-GB
@@ -240,33 +258,36 @@ Sources: [LLMCheck Apple Silicon Benchmarks](https://llmcheck.net/benchmarks) ·
 |-------|------------------|
 | **Kimi K3** (Moonshot, 2.8T/50.4B active MoE) | Ollama offers only `kimi-k3:cloud`; llama.cpp support remains an unmerged PR. Native weights ~1.4 TB; even 2-bit quants ≈ 700+ GB. **Cloud-only.** |
 | **DeepSeek V4-Flash** (DeepSeek, 284B/13B active MoE) | *(re-checked 2026-08-15)* Ollama's own tags page confirms all three variants (`:cloud`, `:0731-cloud`, `:preview-cloud`) are cloud-hosted only — there is no local/GGUF tag at all, so this is cloud-only by Ollama's own listing, not just by arithmetic. (Arithmetic still backs this up independently: 284B × ~4.5 bpw ÷ 8 ≈ 160 GB at Q4 — would exceed 128 GB even if a local tag existed.) |
-| **Ornith-1.0-397B** (deepreinforce-ai, 397B/~3B active MoE) | Unsloth GGUF exists. Q4_K_M ≈ 200 GB (OOM); extreme Q2 ≈ 100 GB fits numerically but quality untested at that quant. **Effectively cloud-only.** Note: the same family's 9B and 35B members fit comfortably and are this doc's current code-implementer picks — see §3.2. |
-| **GLM-5.2** (Z.ai, 744B/40B active MoE) | 62.1% SWE-bench Pro, 91.2% GPQA Diamond; smallest usable GGUF ~217 GB; Ollama only offers `:cloud`. A "GLM-5.5" successor is rumored (analyst projection, not an official Z.ai announcement) — not treated as a real release. |
+| **Ornith-1.5-397B** (ornith-ai/deepreinforce-ai, 397B/~3B active MoE) | *(new this cycle, replaces Ornith-1.0-397B)* Ollama `ornith-1.5:397b` tag confirmed at 242 GB — Q4_K_M-class, exceeds 128 GB by nearly 2×. Extreme sub-Q2 quants might fit numerically but are untested at that precision. **Effectively cloud-only.** Note: the same family's 9B and 35B members fit comfortably and are this doc's current code-implementer picks — see §3.2. |
+| **GLM-5.3** (Z.ai, 743B/~40B active MoE — *new this cycle*) | Z.ai's own strongest-open-weights-coding claim to date (84.5% CyberGym, Terminal-Bench 3.0 lifted from 4.6% to 28.3%), released 2026-08-14, but inherits GLM-5.2's unchanged base model (no retrain) — 743B × ~4.5 bpw ÷ 8 ≈ 418 GB at Q4, stays cloud-only by arithmetic regardless of score. Weights also not yet public as of this refresh (Z.ai states ~2 weeks from launch). A "GLM-5.5" successor remains rumored/unofficial — not treated as a real release. |
+| **Llama 5** (Meta, ~600B total MoE, 5M-token context — *new this cycle*) | ≈600B × ~4.5 bpw ÷ 8 ≈ 338 GB at Q4 — far exceeds 128 GB. No smaller "Scout"-class sibling exists; Llama 4 Scout (109B/17B active) remains the only locally-viable Meta model and this doc's plan-orchestrator/vision pick. |
 | **MiniMax M3** (MiniMax, ~428B/23B active MoE) | 80.5% SWE-bench Verified; smallest local quant ~143 GB; Ollama only offers `:cloud`. (MiniMax's newer "H3" is video/multimodal, not a text LLM, and its weights had not shipped as of the most recent source checked — not evaluated as a candidate.) |
 | Llama 4 Maverick (400B total) | Q4 ≈ 200 GB — hard OOM |
 | Kimi K2.7 Code (1T total) | Community GGUF builds exist but ~585 GB at Q4; cloud-only for this hardware |
 | **DeepSeek V4 Pro** *(the doc's prior "DeepSeek-V4-Pro-Max" — 2026-08-15: left preview, went GA 2026-08-12 as "V4 Pro 0813")* (1.6T/49B active MoE) | 80.6% SWE-bench Verified — still one of the highest open-weight scores found — but ~800 GB minimum at Q4; a circulating "~50 GB" claim is arithmetically impossible for 1.6T params and was rejected early in this doc's history. Re-checked 2026-08-15: Ollama added it to its library as a **`:cloud` tag only** — confirms cloud-only independent of the arithmetic. Community (non-official) GGUF conversions exist but are unverified against DeepSeek's checkpoints. |
 | DeepSeek-V3 full (671B MoE, 37B active) | Q4 ≈ 170 GB — borderline, likely OOM with KV-cache |
-| **Qwen3.8-2.4T-A95B** (Alibaba, 2.4T total, ~95B active — the base model behind the Qwen3.8-Max API) | *(re-checked 2026-08-15)* Open weights **did ship**, on 2026-08-12 (Hugging Face + ModelScope, FP8 quant available) — but this changes nothing for local use. Arithmetic: 2.4T × ~4.5 bpw ÷ 8 ≈ **1.2+ TB at Q4**, ~750 GB even at an aggressive 2-bit quant — off by close to an order of magnitude versus 128 GB, not a borderline case. No Ollama tag exists. **Still not evaluable as a local candidate, weights or not.** The size-comparable companion model that *would* be relevant here, Qwen3.8-27B, has not shipped — see "Pending Releases" below §2. |
+| **Qwen3.8-2.4T-A95B** (Alibaba, 2.4T total, ~95B active — the base model behind the Qwen3.8-Max API) | *(re-checked 2026-08-15)* Open weights **did ship**, on 2026-08-12 (Hugging Face + ModelScope, FP8 quant available) — but this changes nothing for local use. Arithmetic: 2.4T × ~4.5 bpw ÷ 8 ≈ **1.2+ TB at Q4**, ~750 GB even at an aggressive 2-bit quant — off by close to an order of magnitude versus 128 GB, not a borderline case. No Ollama tag exists. **Still not evaluable as a local candidate, weights or not.** The size-comparable companion model, **Qwen3.8-27B**, shipped 2026-08-14 and *is* locally runnable (~18 GB Q4, `qwen3.8:27b`) — evaluated for generalist/judge this cycle and not promoted; see Recent Changes and §3.1. |
 | Any 700B+ total-parameter model | Exceeds envelope at any practical quant |
 
 ---
 
 ## 2. Current Model Landscape (Last 60 Days)
 
-### Models that moved SOTA or shipped new (Jun 12 – Aug 11, 2026)
+### Models that moved SOTA or shipped new (Jun 22 – Aug 21, 2026)
 
 | Model | Family | Released | Why it matters |
 |-------|--------|----------|-----------------|
-| **Ornith-1.0-35B** | deepreinforce-ai (MoE 35B/~3B active) | Jun 25, 2026 (score confirmed 2026-08-11) | **Code-implementer top pick.** 75.6% SWE-bench Verified — confirmed by primary (DeepReinforce blog + HF card, matching methodology) and independent secondary (BenchLM.ai) — beats prior top pick Laguna XS 2.1 (70.9%) at a comparable 21 GB Q4 footprint and, per fresh oMLX M5 Max data, comparable or better throughput. Sibling of the smaller pick, Ornith-1.0-9B. MIT license, 256K context. |
-| **Muse Glimmer** | Meta Superintelligence Labs (dense 30B + 1.8B vision encoder) | Aug 10, 2026 | First model release from Meta's newly-formed Superintelligence Labs. Purpose-built for local agentic workloads; wins big on agentic/tool-use benchmarks (MCP-Atlas, DeepSearch QA, GAIA2) but trails Qwen3.6-27B on SWE-bench Verified (76.0 vs 77.2), TerminalBench 2.1, and OSWorld-Verified. Apache 2.0, ~18 GB Q4. **Evaluated, not promoted — see §3.1.** |
-| **NVIDIA Nemotron 3.5 Lightning** | NVIDIA (hybrid Mamba+MoE, 30B total/3B active) | Aug 11, 2026 | Successor to Nemotron 3 Nano, built for "always-on agent execution layers"; NVIDIA's own card lists only 52.80% SWE-bench Verified — well below every code-implementer pick in this doc. Ollama's `q4_K_M` tag lists 25 GB for a nominally-4-bit 30B model (~6.7 bpw implied) — arithmetic flag, not fully explained. **Not promoted to any role.** |
-| **DeepSeek V4-Flash / V4 Pro** | DeepSeek (MoE 284B/13B active and 1.6T/49B active respectively) | Jul 31, 2026 (Flash); V4 Pro went GA 2026-08-12 | Both confirmed cloud-only **by Ollama's own tag listing** (`:cloud`-suffixed tags only, re-checked 2026-08-15), not just by size arithmetic — see §1. |
-| **Qwen3.8-2.4T-A95B** | Alibaba/Qwen (MoE 2.4T/~95B active) | Launched (API) Aug 3, 2026; open weights shipped Aug 12, 2026 | Weights are out, but at ~1.2+ TB Q4 this was never a size-plausible local candidate regardless of license status. The companion **Qwen3.8-27B** — the one that would actually matter for this doc — remains unshipped as of 2026-08-15. See "Pending Releases" below. |
-| **Laguna XS 2.1** | Poolside (MoE 33B/3B active) | Jul 2, 2026 | **Beaten as code-implementer top pick by Ornith-1.0-35B** (see above) — remains a fully valid alternative with a longer field track record and its own newly-measured strong M5 Max throughput (87–107 tok/s, oMLX). Not deprecated. |
-| **Kimi K3** | Moonshot AI (MoE 2.8T/50.4B active) | Jul 16, 2026 (announced); open weights Jul 26, 2026 | Still no local GGUF/Ollama/MLX support (`kimi-k3:cloud` only). **Cloud-only — see §1.** |
+| **Ornith-1.5-35B-A3B / -9B** | ornith-ai/deepreinforce-ai (MoE 35B/~3B active and dense 9B) | Aug 19/20, 2026 | **Code-implementer top and smaller picks, both changed this cycle.** 79.0% and 70.6% SWE-bench Verified respectively (HF model cards, primary, same OpenHands-harness methodology as the 1.0 generation) — beat prior picks Ornith-1.0-35B (75.6%) and Ornith-1.0-9B (69.4%) at a modest ~10–18% larger footprint. Extends self-scaffolding into a full self-improvement loop (model generates its own training tasks). MIT license, 256K–1M context (YaRN). Self-reported only, no third-party reproduction or M5 Max throughput data yet — see Recent Changes and §3.2. |
+| **Qwen3.8-27B** | Alibaba/Qwen (dense 27B, hybrid attention, natively multimodal) | Aug 14, 2026 | Evaluated for generalist/judge, **not promoted**. Same architecture as Qwen3.6-27B (post-training-only upgrade); strong agentic-benchmark gains (Terminal-Bench 2.1 63.4→73.0, OSWorld-Verified 63.9→84.3) but no published SWE-bench Verified score, and field reports of a severe "overthinking" latency regression at its default `reasoning_effort=xhigh`. Ollama tag `qwen3.8:27b` confirmed, ~18 GB Q4. **Resolves the Qwen3.8-27B "Pending Releases" watch item — see below.** |
+| **GLM-5.3** | Z.ai (MoE 743B/~40B active, unchanged base from GLM-5.2) | Aug 14, 2026 | Z.ai's strongest open-weights coding claim yet (Terminal-Bench 3.0 4.6%→28.3%) but stays cloud-only by arithmetic (≈418 GB at Q4) regardless of score; weights not yet public (~2 weeks from launch per Z.ai). **Not locally relevant — see §1.** |
+| **Llama 5** | Meta (MoE ~600B total, 5M-token context, native video/audio) | Apr 8, 2026 | ≈338 GB at Q4 — far exceeds 128 GB, no smaller "Scout"-class sibling exists. Llama 4 Scout remains the only locally-viable Meta model. **Not locally relevant — see §1.** |
+| **Muse Glimmer** | Meta Superintelligence Labs (dense 30B + 1.8B vision encoder) | Aug 10, 2026 | Unchanged status — no new benchmark or M5 Max data surfaced this cycle. Purpose-built for local agentic workloads; wins big on agentic/tool-use benchmarks (MCP-Atlas, DeepSearch QA, GAIA2) but trails Qwen3.6-27B on SWE-bench Verified (76.0 vs 77.2), TerminalBench 2.1, and OSWorld-Verified. Apache 2.0, ~18 GB Q4. **Evaluated, not promoted — see §3.1.** |
+| **NVIDIA Nemotron 3.5 Lightning** | NVIDIA (hybrid Mamba+MoE, 30B total/3B active) | Aug 11, 2026 | Unchanged status — new independent data point this cycle (Artificial Analysis Intelligence Index 24, on par with gpt-oss-120b; Elo 824 on agentic benchmarks) but SWE-bench Verified still only 52.80%, well below every code-implementer pick. Ollama's `q4_K_M` tag lists 25 GB for a nominally-4-bit 30B model (~6.7 bpw implied) — arithmetic flag, not fully explained. **Not promoted to any role.** |
+| **DeepSeek V4-Flash / V4 Pro** | DeepSeek (MoE 284B/13B active and 1.6T/49B active respectively) | Jul 31, 2026 (Flash); V4 Pro went GA 2026-08-12 | Both confirmed cloud-only **by Ollama's own tag listing** (`:cloud`-suffixed tags only, tag-level check as of 2026-08-15, not independently re-fetched this cycle), not just by size arithmetic — see §1. |
+| **Laguna XS 2.1** | Poolside (MoE 33B/3B active) | Jul 2, 2026 | Remains a fully valid alternative to the current Ornith-1.5 code-implementer picks — longer field track record and its own directly-measured M5 Max throughput (87–107 tok/s, oMLX). Not deprecated. |
+| **Kimi K3** | Moonshot AI (MoE 2.8T/50.4B active) | Jul 16, 2026 (announced); open weights Jul 26, 2026 | Still no local GGUF/Ollama/MLX support (`kimi-k3:cloud` only); llama.cpp PR #26185 remains unmerged (re-checked this cycle). **Cloud-only — see §1.** |
 | **Mistral Medium 3.5** | Mistral AI (dense 128B) | Apr 29, 2026 | 77.6% SWE-bench Verified; ~80 GB Q4; oMLX data (7.1–7.2 tok/s) independently confirms the bandwidth-ceiling tok/s estimate is accurate, not just theoretical. Still too slow for agentic loops — quality-critical one-shot use only. |
-| **Ollama v0.32.9** | Platform release | Aug 11, 2026 | Current stable, up from v0.32.5. Four releases landed since the prior stable — see Runtime Notes for the full v0.32.6–v0.32.9 changelog. |
+| **Ollama v0.32.14** | Platform release | ~Aug 15, 2026 | Current stable, up from v0.32.9. Notable changes since v0.32.9: `repeat_penalty` now defaults to 1.0 (off) instead of 1.1 for models that don't set it, matching other engines and speeding up speculative decoding; ~7–8% faster NVFP4 MLX prefill on Qwen3.6/Muse Glimmer; Linux/Windows MLX support coming online. No v0.33 release found as of 2026-08-21. |
 
 ### Notable models evaluated and excluded (checked repeatedly, still excluded)
 
@@ -290,32 +311,38 @@ confirmed dead, never left to silently go stale in old prose.
 
 | Model | Why it's on this list | Last checked |
 |-------|------------------------|---------------|
-| **Qwen3.8-27B** (Alibaba) | Promised alongside Qwen3.8-Max's open-weight drop (originally "within about a week" of 2026-08-10); the Max variant's 2.4T-param weights shipped 2026-08-12, but the 27B companion has not. If released, this is the single most direct architectural challenger to the current generalist/judge top pick, Qwen3.6-27B — same vendor, same size class, next Qwen generation. Check `ollama.com/library/qwen3.8*` and `huggingface.co/Qwen` each cycle until resolved. | 2026-08-15 — not yet shipped |
+| *(none)* | **Qwen3.8-27B shipped 2026-08-14** and was evaluated this cycle as a normal candidate against Qwen3.6-27B — not promoted (see Recent Changes and §3.1). No new promised-but-unshipped, would-actually-fit, would-actually-matter model was identified this cycle. Table intentionally empty; will be re-populated the moment a genuine candidate is spotted. | 2026-08-21 |
 
-### SWE-bench Verified Snapshot (Aug 11, 2026)
+### SWE-bench Verified Snapshot (Aug 21, 2026)
 
 For context on where role picks sit in the broader leaderboard. Frontier
 (non-open-weight, API-only) scores remain omitted from precise citation —
 trackers still disagree on exact figures for the current frontier and none of it
-changes a local pick.
+changes a local pick. **Qwen3.8-27B is intentionally absent** — Alibaba has not
+published a SWE-bench Verified score for it (only SWE-bench Pro, a different
+benchmark), so it cannot be placed on this table without conflating the two — see
+Recent Changes and §3.1.
 
 | Model | Score | Locally runnable? |
 |-------|-------|--------------------|
 | Kimi K3 | 93.4% (vals.ai) | No (`:cloud` only, 2.8T params) |
-| Ornith-1.0-397B | 82.4% | No (200 GB Q4) |
+| Ornith-1.5-397B | 86.0% | No (242 GB Q4) |
+| Ornith-1.0-397B | 82.4% | No (200 GB Q4) — beaten by its own 1.5 successor above |
 | DeepSeek V4 Pro | 80.6% | No (`:cloud` tag only, 800 GB Q4) |
 | MiniMax M3 | 80.5% | No (143 GB min) |
+| **Ornith-1.5-35B-A3B** | **79.0%** | **Yes (~23 GB Q4) — current top local coding pick, changed 2026-08-21** |
 | Mistral Medium 3.5 | 77.6% | **Yes (80 GB Q4 — slow, ~7 tok/s)** |
 | Qwen3.6-27B | 77.2% | **Yes (~17 GB Q4)** |
 | **Muse Glimmer** | 76.0% | Yes (~18 GB Q4) — **evaluated, not promoted, see §3.1** |
-| **Ornith-1.0-35B** | **75.6%** | **Yes (~21 GB Q4) — current top local coding pick** |
-| **Laguna XS 2.1** | **70.9%** | **Yes (~20 GB Q4) — beaten as top pick, still a valid alternative** |
-| **Ornith-1.0-9B** | **69.4%** | **Yes (~5.6 GB Q4) — current smaller coding pick** |
+| Ornith-1.0-35B | 75.6% | Yes (~21 GB Q4) — beaten as top pick, still a valid alternative |
+| Laguna XS 2.1 | 70.9% | Yes (~20 GB Q4) — still a valid alternative to the Ornith-1.5 picks |
+| **Ornith-1.5-9B** | **70.6%** | **Yes (~6.6 GB Q4) — current smaller coding pick, changed 2026-08-21** |
+| Ornith-1.0-9B | 69.4% | Yes (~5.6 GB Q4) — beaten as smaller pick, still a valid alternative |
 | Devstral Small 2 | 68.0% | Yes (~15 GB Q4) — still a valid alternative |
 | Cohere North Mini Code 1.0 | 67.6% | Yes (~17 GB Q4) |
 | NVIDIA Nemotron 3.5 Lightning | 52.80% | Yes (~25 GB) — too low-scoring for any current pick |
 
-Source: [vals.ai SWE-bench leaderboard](https://www.vals.ai/benchmarks/swebench) and [BenchLM.ai](https://benchlm.ai/benchmarks/sweVerified) (both primary-adjacent/secondary, cross-checked); Ornith-1.0-35B and Muse Glimmer scores verified directly against primary vendor sources per §3.2/§3.1.
+Source: [vals.ai SWE-bench leaderboard](https://www.vals.ai/benchmarks/swebench) and [BenchLM.ai](https://benchlm.ai/benchmarks/sweVerified) (both primary-adjacent/secondary, cross-checked); Ornith-1.5-35B-A3B, Ornith-1.5-9B, Ornith-1.5-397B scores verified directly against Hugging Face model cards (primary) this cycle — no third-party reproduction yet, see Recent Changes.
 
 ---
 
@@ -331,9 +358,9 @@ Source: [vals.ai SWE-bench leaderboard](https://www.vals.ai/benchmarks/swebench)
 
 **Rationale:** Qwen3.6-27B (Alibaba, Apr 22, 2026) is a 27B dense model with a built-in dual-mode thinking toggle: `/think` on for deep reasoning, off for fast chat. At 77.2% SWE-bench Verified it sits well within range of the frontier API models while running entirely locally. The 256K context window handles most agentic sessions without truncation. Gemma 4 12B Unified is the right answer when memory is at a premium or multimodal input is needed at low cost.
 
-**Watch item:** the next-generation same-size-class model, **Qwen3.8-27B**, has been promised since 2026-08-10 but has not shipped as of 2026-08-15 — only its much larger 2.4T-param sibling (Qwen3.8-Max) has open weights so far, and that one is architecturally too large to ever run locally regardless of license (~1.2+ TB at Q4 — see §2 "Pending Releases" and §1). Qwen3.8-27B, if and when it ships, is the most likely candidate to eventually challenge this pick — tracked explicitly in §2 rather than left for research to stumble back onto.
+**Evaluated, not selected (2026-08-21): Qwen3.8-27B.** Alibaba's next-generation model in the same size class shipped 2026-08-14 (`qwen3.8:27b`, ~18 GB Q4, Apache 2.0). It's the same 27B dense/hybrid-attention architecture as Qwen3.6-27B — the upgrade is entirely post-training (stronger RL on agentic tasks), not a new base model — and posts real gains per Alibaba's own model card: Terminal-Bench 2.1 63.4→73.0, OSWorld-Verified 63.9→84.3, SWE-bench Pro 53.5→61.7. Two things keep it from displacing Qwen3.6-27B this cycle: **(1)** Alibaba has not published a SWE-bench Verified score for it at all, so there's no apples-to-apples read against this doc's tracked headline metric; **(2)** independent field reports describe the model **defaulting to `reasoning_effort=xhigh`**, with one developer clocking 22,276 reasoning tokens and 21 minutes of latency on a single trivial SVG-generation prompt — a serious throughput regression for the many-completions-per-session agentic-loop use case this doc optimizes for (this doc's own selection criterion: throughput is part of quality). Community reports also note chat-template bugs and higher context-memory use than 3.6. Worth re-testing at `reasoning_effort=low`/`medium` once field data accumulates and template fixes land — not a rejection of the model, a "not yet" given what's confirmable this cycle. See §2.
 
-**Evaluated, not selected:** *Muse Glimmer* (Meta Superintelligence Labs, dense 30B, released Aug 10, 2026, Apache 2.0, `muse-glimmer:30b`, ~18 GB Q4) is a genuine new contender purpose-built for agentic workloads. Meta's own benchmark table shows a **mixed** result against Qwen3.6-27B: Glimmer wins decisively on tool-use/agentic benchmarks (MCP-Atlas 75.5 vs 62.5, DeepSearch QA 74.6 vs 71.1, GAIA2 43.3 vs 40.0, WildClawBench 47.6 vs 43.2) but loses on this doc's headline benchmark, SWE-bench Verified (76.0 vs 77.2), and on TerminalBench 2.1 (51.7 vs 60.7) and OSWorld-Verified (65.9 vs 75.6). The secondary source reproducing these numbers (kingy.ai) explicitly flags a methodology concern — Meta "selected the more favorable of a competitor's self-reported score or its own reproduction" — which is reason for caution on the comparison numbers themselves, separate from the mixed result. Combined with zero field track record (released one day before the most recent refresh) and no independent M5 Max tok/s measurement yet, this is a **"watch next cycle" candidate, not a promotion**. If MCP-style tool-calling and general agentic reliability matter more to a given workflow than raw SWE-bench score, Muse Glimmer is worth trying now despite not being the default pick here.
+**Evaluated, not selected:** *Muse Glimmer* (Meta Superintelligence Labs, dense 30B, released Aug 10, 2026, Apache 2.0, `muse-glimmer:30b`, ~18 GB Q4) is a genuine new contender purpose-built for agentic workloads. Meta's own benchmark table shows a **mixed** result against Qwen3.6-27B: Glimmer wins decisively on tool-use/agentic benchmarks (MCP-Atlas 75.5 vs 62.5, DeepSearch QA 74.6 vs 71.1, GAIA2 43.3 vs 40.0, WildClawBench 47.6 vs 43.2) but loses on this doc's headline benchmark, SWE-bench Verified (76.0 vs 77.2), and on TerminalBench 2.1 (51.7 vs 60.7) and OSWorld-Verified (65.9 vs 75.6). The secondary source reproducing these numbers (kingy.ai) explicitly flags a methodology concern — Meta "selected the more favorable of a competitor's self-reported score or its own reproduction" — which is reason for caution on the comparison numbers themselves, separate from the mixed result. No new data surfaced this cycle (re-checked 2026-08-21); still a **"watch next cycle" candidate, not a promotion**. If MCP-style tool-calling and general agentic reliability matter more to a given workflow than raw SWE-bench score, Muse Glimmer is worth trying now despite not being the default pick here.
 
 **Sizing note:** ~16.8 GB at Q4_K_M; ~19.5 GB at Q5_K_M; ~28.6 GB at Q8_0 for Qwen3.6-27B. Q5_K_M is recommended if the extra 3 GB is available.
 
@@ -342,20 +369,19 @@ Source: [vals.ai SWE-bench leaderboard](https://www.vals.ai/benchmarks/swebench)
 
 | | Model | Q4 resident | Key benchmarks | Ollama tag |
 |-|-------|------------|-----------------|------------|
-| **Top pick** | **Ornith-1.0-35B** | ~21 GB | SWE-bench Verified 75.6%; Terminal-Bench 2.1 64.2%; 256K ctx | `ornith:35b` |
-| **Smaller pick** | Ornith-1.0-9B | ~5.6 GB | SWE-bench Verified 69.4%; Terminal-Bench 2.1 43.1; 256K ctx | `ornith:9b` |
+| **Top pick** | **Ornith-1.5-35B-A3B** | ~23 GB | SWE-bench Verified 79.0%; Terminal-Bench 2.1 68.5%; 256K–1M ctx (YaRN) | `ornith-1.5:35b` |
+| **Smaller pick** | Ornith-1.5-9B | ~6.6 GB | SWE-bench Verified 70.6%; Terminal-Bench 2.1 46.2–47.0; 256K–1M ctx (YaRN) | `ornith-1.5:9b` |
 
-**Rationale — top pick, as of 2026-08-11:** Ornith-1.0-35B (deepreinforce-ai, MoE 35B total/~3B active, MIT license) is the sibling of the smaller pick, Ornith-1.0-9B, sharing the same self-scaffolding agentic-RL training approach. Its SWE-bench Verified score was `[unverified]` in an earlier cycle; it now resolves cleanly against DeepReinforce's own blog and Hugging Face model card (primary, both stating the same methodology: OpenHands harness, temp=1.0, top_p=0.95, 256K context, averaged over 5 runs) and is independently matched by BenchLM.ai (secondary) — passing all three of this doc's verification gates. It beats the prior top pick, Laguna XS 2.1 (70.9%), by 4.7 points at a comparable resident size (21 GB vs ~20 GB) and the same MoE-~3B-active architecture pattern. **On the speed tradeoff specifically** (this doc's selection criterion that throughput is part of quality): oMLX M5 Max data (2026-07-02, batch-size sweep) shows Ornith-1.0-35B running 77–123 tok/s depending on batch size, comparable to or faster than Laguna XS 2.1's own measured 87–107 tok/s (oMLX, 2026-08-10/11) — this is a case where the higher-scoring model does *not* trade away speed. Ollama tag `ornith:35b` confirmed at 21 GB directly against the live tags page.
-
-**Smaller pick:** Ornith-1.0-9B (dense 9B, same family) remains the smaller pick at ~5.6 GB — no challenger has beaten it as of the most recent cycle.
+**Rationale — both picks, as of 2026-08-21:** Ornith-1.5-35B-A3B and Ornith-1.5-9B (ornith-ai/deepreinforce-ai, shipped 2026-08-19/20) extend the Ornith-1.0 family's self-scaffolding approach into a full self-improvement loop — the model now generates its own training tasks in addition to its own scaffolds and rollouts, MIT license throughout. Both scores are confirmed directly against Ornith's own Hugging Face model cards (primary) using the **same OpenHands-harness methodology** (temp=1.0, top_p=0.95, 256K context, averaged over 5 runs, anti-reward-hacking controls: git history stripped, network disabled) that this doc already trusted for the 1.0 generation — a genuine apples-to-apples comparison, not a benchmark-suite change. The 35B variant gains 3.4 points over Ornith-1.0-35B (79.0% vs 75.6%); the 9B variant gains 1.2 points over Ornith-1.0-9B (70.6% vs 69.4%). Both Ollama tags were fetched directly and confirmed: `ornith-1.5:35b` at 23 GB, `ornith-1.5:9b` at 6.6 GB — a ~10–18% size increase over the 1.0 generation that passes the arithmetic gate (still consistent with a Q4-class quant at these parameter counts) and is plausibly explained by added multimodal/vision input support. **Two caveats stated plainly, per this doc's epistemic rules:** these are **self-reported scores with no independent third-party reproduction yet** (the same position Ornith-1.0's scores were in for one cycle before BenchLM.ai independently matched them), and **no fresh M5 Max/oMLX throughput measurement exists** for the 1.5 family — it shipped 1–2 days before this refresh. §1's tok/s table extrapolates by architecture analogy to the 1.0 family (same MoE-A3B/dense pattern, ~5–8% slower estimated for the larger footprint), explicitly marked as extrapolated, not measured. Given the clean win on the exact headline metric via a primary source, from an already-vetted family with an unbroken evaluation methodology, promotion is made on that basis while flagging both gaps for next cycle's re-check.
 
 **Also evaluated, not selected:**
-- *Laguna XS 2.1* (Poolside, Jul 2, 2026; MoE 33B/3B active; 70.9% SWE-bench Verified; `laguna-xs-2.1:q4_K_M`, ~20 GB, Apache-compatible): **beaten as top pick**, not deprecated. Remains a fully valid alternative — a longer field track record than Ornith-1.0-35B, and its own very competitive measured M5 Max throughput. Teams already standardized on Laguna's tool-calling behavior have no urgent reason to switch.
-- *Muse Glimmer* (Meta, dense 30B, Aug 10, 2026; SWE-bench Verified 76.0%; SWE-bench Pro 51.2 vs Qwen3.6-27B's 50.2 — narrowly ahead there but behind on Verified, TerminalBench, and OSWorld): evaluated for this role too given its coding-adjacent benchmark profile, but doesn't clearly beat either current pick on the headline metric and is one day old with no field validation. See §3.1 for the full comparison.
-- *NVIDIA Nemotron 3.5 Lightning* (30B-A3B MoE, released Aug 11, 2026): 52.80% SWE-bench Verified — well below every pick and alternative in this section. Fast (~25 GB, claimed 4× throughput vs. similar models, unverified independently) but not competitive on quality for this role. Worth re-checking once field-tested and once independent M5 Max numbers exist.
-- *Devstral Small 2* (Mistral, 24B dense; 68.0% SWE-bench; `devstral-small-2`, ~15 GB Q4, Apache 2.0): still a valid alternative to Ornith-1.0-9B, especially where Devstral's longer production track record in agentic tool-calling scaffolds (OpenHands, SWE-agent) matters more than footprint.
-- *Mistral Medium 3.5* (128B dense; 77.6% SWE-bench Verified — higher than either current pick; `mistral-medium-3.5:128b`, 80 GB Q4): fits, but at ≈7.1–7.2 tok/s (confirmed by direct oMLX measurement, not just bandwidth arithmetic) a 1K-token completion takes roughly 140–150 seconds versus Ornith-1.0-35B's ~8–13 seconds at the low end of its measured range — the latency penalty rules it out for agentic loops. Quality-critical one-shot tasks only.
-- *Ornith-1.0-397B* (82.4%), *DeepSeek V4 Pro* (80.6%), *MiniMax M3* (80.5%), *Kimi K3* (93.4% per vals.ai) top the global leaderboard but none fit 128 GB at practical quants — see §1.
+- *Ornith-1.0-35B* and *Ornith-1.0-9B* (deepreinforce-ai; 75.6% and 69.4% SWE-bench Verified; `ornith:35b`/`ornith:9b`, ~21 GB/~5.6 GB, MIT): **beaten by their own 1.5 successors** (see above), not deprecated. Both remain fully valid alternatives with real field track records (5+ and 6+ weeks of production use respectively) and directly-measured M5 Max throughput (77–123 tok/s and 109 tok/s respectively, oMLX) that the 1.5 generation doesn't have yet. Teams wanting a benchmarked-in-production model today, not a 2-day-old release, have no urgent reason to switch.
+- *Laguna XS 2.1* (Poolside, Jul 2, 2026; MoE 33B/3B active; 70.9% SWE-bench Verified; `laguna-xs-2.1:q4_K_M`, ~20 GB, Apache-compatible): still a fully valid alternative — longer field track record than either Ornith generation, and its own very competitive measured M5 Max throughput. Teams already standardized on Laguna's tool-calling behavior have no urgent reason to switch.
+- *Muse Glimmer* (Meta, dense 30B, Aug 10, 2026; SWE-bench Verified 76.0%; SWE-bench Pro 51.2 vs Qwen3.6-27B's 50.2 — narrowly ahead there but behind on Verified, TerminalBench, and OSWorld): re-checked this cycle, no new data. Doesn't clearly beat the current picks on the headline metric. See §3.1 for the full comparison.
+- *NVIDIA Nemotron 3.5 Lightning* (30B-A3B MoE, released Aug 11, 2026): 52.80% SWE-bench Verified — well below every pick and alternative in this section, unchanged this cycle. A new independent data point (Artificial Analysis Intelligence Index 24, Elo 824 on agentic benchmarks) doesn't move the coding-quality verdict. Fast but not competitive on quality for this role.
+- *Devstral Small 2* (Mistral, 24B dense; 68.0% SWE-bench; `devstral-small-2`, ~15 GB Q4, Apache 2.0): still a valid alternative to the Ornith-1.5-9B smaller pick, especially where Devstral's longer production track record in agentic tool-calling scaffolds (OpenHands, SWE-agent) matters more than footprint.
+- *Mistral Medium 3.5* (128B dense; 77.6% SWE-bench Verified; `mistral-medium-3.5:128b`, 80 GB Q4): fits, but at ≈7.1–7.2 tok/s (confirmed by direct oMLX measurement, not just bandwidth arithmetic) a 1K-token completion takes roughly 140–150 seconds versus Ornith-1.5-35B-A3B's estimated ~8–14 second range — the latency penalty rules it out for agentic loops. Quality-critical one-shot tasks only.
+- *Ornith-1.5-397B* (86.0%), *DeepSeek V4 Pro* (80.6%), *MiniMax M3* (80.5%), *Kimi K3* (93.4% per vals.ai) top the global leaderboard but none fit 128 GB at practical quants — see §1.
 
 ### 3.3 Code Debugger
 *Reasoning / chain-of-thought, root-cause analysis, math-heavy debugging.*
@@ -379,6 +405,8 @@ Source: [vals.ai SWE-bench leaderboard](https://www.vals.ai/benchmarks/swebench)
 
 **New candidate considered, not selected:** NVIDIA Nemotron 3.5 Lightning (30B-A3B MoE, released 2026-08-11, 1M-token context on its standard variant, claimed high throughput for "always-on agent execution layers") is architecturally interesting for this role — long context plus speed is exactly the orchestrator profile — but no tool-calling-specific benchmark exists for it yet, and its SWE-bench Verified score (52.80%) suggests weaker code-comprehension than Scout or Qwen3.6-27B for orchestration tasks that involve reasoning about code. Worth re-evaluating once field-tested; not promoted given how recently it shipped.
 
+**Checked this cycle:** Meta shipped **Llama 5** (~600B total MoE, 5M-token context, native video/audio) but it exceeds 128 GB by nearly 3× (≈338 GB at Q4) with no smaller "Scout"-class sibling — not a candidate for this hardware. Llama 4 Scout remains Meta's only locally-viable model. See §1/§2.
+
 **MCP tool-calling context:** No update to the MCP-Mark leaderboard (last dated Jun 2026: Kimi K2.7 Code leads at 0.811) has been found. Neither Scout nor Qwen3.6-27B appear in that evaluation.
 
 **Also evaluated, not selected:** NVIDIA Nemotron 3 Super (Mar 11, 2026; 120B/12B-active, 1M context, ~60 GB at Q4) — scores 60.47% SWE-bench Verified, below Qwen3.6-27B and Scout's orchestration-specific strengths.
@@ -392,6 +420,8 @@ Source: [vals.ai SWE-bench leaderboard](https://www.vals.ai/benchmarks/swebench)
 | **Smaller pick** | Gemma 4 12B Unified | ~7.6 GB | Fast; MMLU Pro 77.2%; low latency for high-volume scoring | `gemma4:12b` |
 
 **Rationale:** For judging, **disable thinking mode** — reasoning traces inflate token cost and can introduce self-consistency bias in scores. Qwen3.6-27B's instruction fidelity and calibration make it the recommended local judge. Inject a scored reference example at the top of the judge prompt to anchor the scoring scale. **Staleness flag, unchanged:** no fresher RewardBench 2 data has been found — last confirmed data remains the Jun 2025 submission behind RewardBench 2's ICLR 2026 paper. For high-stakes judging, frontier API models remain preferred; use local judges for cost-sensitive or privacy-constrained pipelines.
+
+**Evaluated, not selected (2026-08-21):** Qwen3.8-27B (see §3.1 for the full writeup) is **especially unsuited to this role right now**, not just "not yet promoted" — its reported default `reasoning_effort=xhigh` behavior (22K+ reasoning tokens on trivial prompts in field reports) is directly at odds with high-volume, low-latency scoring, which is exactly what judging workloads need. Worth revisiting once `reasoning_effort=low` behavior is field-validated.
 
 ### 3.6 Document Understanding / Interpreter
 *PDFs, OCR, table and equation extraction.*
@@ -420,13 +450,13 @@ Source: [vals.ai SWE-bench leaderboard](https://www.vals.ai/benchmarks/swebench)
 Four patterns consistently pay off on M5 Max 128 GB:
 
 ### 4.1 MoE-A3B Models
-**Ornith-1.0-35B** (top code-implementer pick, 35B/~3B active, ~21 GB at Q4_K_M), **Laguna XS 2.1** (33B/3B active, ~20 GB), and **Qwen 3.5 30B-A3B** (30B/3B active, ~17 GB) all activate only ~3B parameters per token despite loading a much larger weight set. oMLX M5 Max data confirms the pattern holds up under direct measurement: 77–123 tok/s for Ornith-1.0-35B, 87–107 tok/s for Laguna XS 2.1 — both firmly in "interactive agentic loop" territory despite 30B+ class quality. This remains the highest quality-per-GB pattern in the current Ollama library.
+**Ornith-1.5-35B-A3B** (top code-implementer pick, 35B/~3B active, ~23 GB at Q4_K_M), **Laguna XS 2.1** (33B/3B active, ~20 GB), and **Qwen 3.5 30B-A3B** (30B/3B active, ~17 GB) all activate only ~3B parameters per token despite loading a much larger weight set. Directly-measured oMLX M5 Max data confirms the pattern holds up for the still-current-generation members: 77–123 tok/s for Ornith-1.0-35B, 87–107 tok/s for Laguna XS 2.1 — both firmly in "interactive agentic loop" territory despite 30B+ class quality. Ornith-1.5-35B-A3B's own throughput is extrapolated by analogy (no fresh measurement yet — see §1) but expected to hold the same pattern given its near-identical architecture. This remains the highest quality-per-GB pattern in the current Ollama library.
 
 ### 4.2 Distilled Reasoning Models
 **DeepSeek-R1-Distill-Qwen-32B** transfers chain-of-thought behaviour from a 671B teacher into a 32B student (20 GB at Q4). It achieves MATH scores that beat many naive 70B models, at twice the speed and half the memory. For debugging and reasoning tasks, the distill is sufficient — you don't need to reach for a 70B.
 
 ### 4.3 Tiny Purpose-Trained Coding Models
-**Ornith-1.0-9B** is a *dense* 9B model, trained specifically around self-generated agentic-RL scaffolds, that beats larger competitors at a fraction of their resident memory. Its 35B sibling's promotion to top pick suggests the self-scaffolding training approach scales cleanly across sizes within the same family, not just as a one-off small-model trick.
+**Ornith-1.5-9B** is a *dense* 9B model, trained specifically around self-generated agentic-RL scaffolds (now extended to a full self-improvement loop as of the 1.5 generation), that beats larger competitors at a fraction of their resident memory. Its 35B sibling's continued lead as top pick across two generations (1.0→1.5) suggests the self-scaffolding/self-improvement training approach scales cleanly across sizes within the same family, not just as a one-off small-model trick.
 
 ### 4.4 Purpose-Built Specialized Small Models
 A handful-of-GB specialist routinely beats a 70B generalist on its target domain:
@@ -449,31 +479,35 @@ Ollama loads and unloads models from unified memory on demand. The full inventor
 | Llama 4 Scout | `llama4:scout` | ~67 GB | Orchestrator + vision |
 | Qwen3.6-27B | `qwen3.6:27b` | ~17 GB | Generalist + judge |
 | DeepSeek-R1-Distill-Qwen-32B | `deepseek-r1:32b` | ~20 GB | Code debugger / reasoning |
-| **Ornith-1.0-35B** | `ornith:35b` | ~21 GB | Code implementer (top pick, higher SWE-bench) |
-| Ornith-1.0-9B | `ornith:9b` | ~5.6 GB | Code implementer (smaller pick) |
+| **Ornith-1.5-35B-A3B** | `ornith-1.5:35b` | ~23 GB | Code implementer (top pick, higher SWE-bench) |
+| Ornith-1.5-9B | `ornith-1.5:9b` | ~6.6 GB | Code implementer (smaller pick) |
 | Gemma 4 26B MoE | `gemma4:26b` | ~18 GB | Document understanding |
 | Gemma 4 12B Unified | `gemma4:12b` | ~7.6 GB | Fast general + doc assistant |
 | Gemma 4 E4B | `gemma4:e4b` | ~9.6 GB | Small vision / audio / video |
 | *Laguna XS 2.1 (optional, alternative)* | `laguna-xs-2.1:q4_K_M` | ~20 GB | *Code implementer alt — longer field track record, very competitive speed* |
+| *Ornith-1.0-35B / -9B (optional, alternative)* | `ornith:35b` / `ornith:9b` | ~21 GB / ~5.6 GB | *Code implementer alt — real field track record, directly-measured throughput, vs. the 1.5 picks' 2-day-old self-reported scores* |
 | *Devstral Small 2 (optional)* | `devstral-small-2` | ~15 GB | *Code implementer alt — battle-tested tool-calling track record* |
 | *Mistral Medium 3.5 (optional)* | `mistral-medium-3.5:128b` | ~80 GB | *Quality-critical one-shot coding, latency-tolerant only* |
 
-**Total core inventory size on disk (excluding optionals):** ~166.2 GB. Laguna XS
-2.1 adds ~20 GB, Devstral Small 2 adds ~15 GB, Mistral Medium 3.5 adds ~80 GB if
-all three optionals are also pulled. Ollama evicts from RAM on demand.
+**Total core inventory size on disk (excluding optionals):** ~169.2 GB. Laguna XS
+2.1 adds ~20 GB, the Ornith-1.0 pair adds ~26.6 GB, Devstral Small 2 adds ~15 GB,
+Mistral Medium 3.5 adds ~80 GB if all optionals are also pulled. Ollama evicts from
+RAM on demand.
 
 ### Recommended Concurrent Working Sets (each under ~100 GB)
 
 | Set | Combined RAM | Use case |
 |------|-------------|----------|
 | Scout + Qwen3.6 | ~84 GB | Orchestrator + workhorse; long-context agentic sessions |
-| Ornith-1.0-35B + Ornith-1.0-9B | ~26.6 GB | Same-family coding pair: escalate from smaller to top pick within one session without a family-behavior mismatch |
-| Ornith-1.0-9B + DeepSeek-R1 32B | ~25.6 GB | Coding session: implement → debug loop |
+| Ornith-1.5-35B-A3B + Ornith-1.5-9B | ~29.6 GB | Same-family coding pair: escalate from smaller to top pick within one session without a family-behavior mismatch |
+| Ornith-1.5-9B + DeepSeek-R1 32B | ~26.6 GB | Coding session: implement → debug loop |
 | Qwen3.6 + Gemma 4 12B | ~24.6 GB | Lightweight dual-model chat + vision |
-| Scout + Ornith-1.0-35B | ~88 GB | Orchestrated multi-file coding with the top code pick |
+| Scout + Ornith-1.5-35B-A3B | ~90 GB | Orchestrated multi-file coding with the top code pick |
 | Mistral Medium 3.5 + Qwen3.6 | ~97 GB | Quality-first coding + fast judge — fits but with limited KV-cache headroom |
 
-Laguna XS 2.1 remains a drop-in substitute for Ornith-1.0-35B in any pairing above (same ~20-21 GB class) if its longer field track record is preferred over the higher benchmark score.
+Laguna XS 2.1 and the Ornith-1.0 pair both remain drop-in substitutes for the
+Ornith-1.5 picks in any pairing above (same ~20-23 GB class) if a longer field
+track record is preferred over the newest benchmark score.
 
 ### What to Exclude from Local Use
 
@@ -481,7 +515,9 @@ Laguna XS 2.1 remains a drop-in substitute for Ornith-1.0-35B in any pairing abo
 |-------|--------|
 | Kimi K3 (2.8T total) | `:cloud` only; ~700+ GB even at 2-bit |
 | DeepSeek V4-Flash / V4 Pro (284B / 1.6T total) | `:cloud` tags only on Ollama — no local variant exists |
-| Ornith-1.0-397B (397B total) | Q4 ≈ 200 GB (OOM); Q2 ≈ 100 GB fits but is untested/quality-degraded |
+| Ornith-1.5-397B (397B total) | Q4 ≈ 242 GB (OOM); sub-Q2 quants might fit numerically but are untested |
+| GLM-5.3 (743B total) | Weights not yet public; ≈418 GB at Q4 even once released — `:cloud` only |
+| Llama 5 (~600B total) | ≈338 GB at Q4 — no smaller "Scout"-class sibling exists |
 | Llama 4 Maverick (400B total) | Q4 ≈ 200 GB — hard OOM |
 | Kimi K2.7 Code (1T total) | Community GGUF exists but ~585 GB at Q4 |
 
@@ -490,37 +526,43 @@ Laguna XS 2.1 remains a drop-in substitute for Ornith-1.0-35B in any pairing abo
 ## 6. Verification Checklist
 
 ```bash
-# Ensure Ollama is up-to-date (v0.32.9 as of 2026-08-11)
+# Ensure Ollama is up-to-date (v0.32.14 as of 2026-08-15; no v0.33 as of 2026-08-21)
 ollama version
 
 # --- Pull core models ---
 ollama pull qwen3.6:27b              # ~17 GB  — generalist / judge / debugger fallback
 ollama pull llama4:scout              # ~67 GB  — orchestrator + vision
 ollama pull deepseek-r1:32b           # ~20 GB  — reasoning / debugging
-ollama pull ornith:35b                # ~21 GB  — code implementation (top pick)
-ollama pull ornith:9b                 # ~5.6 GB — code implementation (smaller pick)
+ollama pull ornith-1.5:35b            # ~23 GB  — code implementation (top pick)
+ollama pull ornith-1.5:9b             # ~6.6 GB — code implementation (smaller pick)
 ollama pull gemma4:26b                # ~18 GB  — document understanding
 ollama pull gemma4:12b                # ~7.6 GB — fast general
 ollama pull gemma4:e4b                # ~9.6 GB — small vision/audio/video
 
 # --- Optional alternatives ---
-# ollama pull laguna-xs-2.1:q4_K_M      # ~20 GB  — code implementation alt (beaten as top pick, still valid — longer track record)
+# ollama pull laguna-xs-2.1:q4_K_M      # ~20 GB  — code implementation alt (longer track record)
+# ollama pull ornith:35b                # ~21 GB  — code implementation alt (Ornith-1.0, beaten as top pick, real field track record)
+# ollama pull ornith:9b                 # ~5.6 GB — code implementation alt (Ornith-1.0, beaten as smaller pick, real field track record)
 # ollama pull devstral-small-2          # ~15 GB  — code implementation alt (battle-tested tool-calling)
 # ollama pull mistral-medium-3.5:128b   # ~80 GB  — 77.6% SWE-bench but ~7 tok/s (confirmed via direct M5 Max measurement)
+# ollama pull qwen3.8:27b               # ~18 GB  — evaluated, NOT promoted this cycle (overthinking/latency regression at default reasoning_effort — see §3.1); pull only to test reasoning_effort=low/medium yourself
 
 # --- Verify resident memory after load ---
 # (run `ollama ps` while the model is active)
 # qwen3.6:27b           → 16–18 GB
 # llama4:scout          → 65–70 GB
 # deepseek-r1:32b       → 19–21 GB
-# ornith:35b            → 20–22 GB
-# ornith:9b             → 5–6 GB
+# ornith-1.5:35b        → 22–24 GB
+# ornith-1.5:9b         → 6–7 GB
 # gemma4:26b            → 17–19 GB
 # gemma4:12b            → 7–8 GB
 # gemma4:e4b            → 9–10 GB
 # laguna-xs-2.1:q4_K_M  → 18–21 GB
+# ornith:35b            → 20–22 GB
+# ornith:9b             → 5–6 GB
 # devstral-small-2      → 14–16 GB
 # mistral-medium-3.5:128b → 78–82 GB
+# qwen3.8:27b           → 17–19 GB
 
 # --- Smoke tests ---
 
@@ -538,11 +580,11 @@ ollama run llama4:scout "List 5 subtasks for building a REST API with auth, rate
 ollama run deepseek-r1:32b "What is the derivative of x^3 * sin(x)? Show all steps."
 # Expected: full chain-of-thought before answer
 
-# Agentic coding, top pick (Ornith-1.0-35B)
-ollama run ornith:35b "Refactor this function to handle None inputs gracefully: def get_len(s): return len(s)"
+# Agentic coding, top pick (Ornith-1.5-35B-A3B)
+ollama run ornith-1.5:35b "Refactor this function to handle None inputs gracefully: def get_len(s): return len(s)"
 
-# Agentic coding, smaller pick (Ornith-1.0-9B)
-ollama run ornith:9b "Implement a Python function that validates an email address using a regex, with unit tests."
+# Agentic coding, smaller pick (Ornith-1.5-9B)
+ollama run ornith-1.5:9b "Implement a Python function that validates an email address using a regex, with unit tests."
 
 # Vision (Gemma 4 E4B) — requires an image file
 # ollama run gemma4:e4b "Describe what you see in this image." --image /path/to/screenshot.png
@@ -556,13 +598,16 @@ ollama run gemma4:26b "Extract all column headers and row values from this table
 ## 7. Sources
 
 ### Platform & Release Notes
-- [Ollama Releases — GitHub](https://github.com/ollama/ollama/releases) (primary — v0.32.6/.7/.8/.9 confirmed)
+- [Ollama Releases — GitHub](https://github.com/ollama/ollama/releases) (primary — v0.32.6 through v0.32.14 confirmed)
 - [Ollama Library](https://ollama.com/library)
+- [Releasebot — Ollama Release Notes](https://releasebot.io/updates/ollama) (secondary — v0.32.14 changelog detail, repeat_penalty default change, NVFP4 MLX prefill speedup)
 
 ### Ollama Library Pages Fetched Directly (primary)
 - [ornith / tags](https://ollama.com/library/ornith/tags) — confirmed `ornith:35b` 21 GB, `ornith:9b` 5.6 GB
 - [ornith (model page)](https://ollama.com/library/ornith)
+- [ornith-1.5 / tags](https://ollama.com/library/ornith-1.5/tags) — **fetched 2026-08-21**, confirmed `ornith-1.5:35b` 23 GB, `ornith-1.5:9b` 6.6 GB, `ornith-1.5:397b` 242 GB, all 256K ctx
 - [qwen3.6 / tags](https://ollama.com/library/qwen3.6/tags) — confirmed `qwen3.6:27b` 17 GB
+- [qwen3.8 / tags](https://ollama.com/library/qwen3.8/tags) — **fetched 2026-08-21**, confirmed `qwen3.8:27b`/`q4_K_M` 18 GB, `27b-mlx` 18 GB, `27b-bf16` 56 GB, 256K ctx, 11 total tag variants
 - [laguna-xs-2.1 / tags](https://ollama.com/library/laguna-xs-2.1/tags) — confirmed `q4_K_M` 20 GB
 - [llama4 / tags](https://ollama.com/library/llama4/tags) — confirmed `scout` 67 GB
 - [gemma4 / tags](https://ollama.com/library/gemma4/tags) — confirmed 26b 18 GB, 12b 7.6 GB, e4b 9.6 GB
@@ -579,7 +624,15 @@ ollama run gemma4:26b "Extract all column headers and row values from this table
 - [Apple ML Research — Exploring LLMs with MLX on M5](https://machinelearning.apple.com/research/exploring-llms-mlx-m5) (primary, base M5 only, not M5 Max)
 - *Wale Akinfaderin, "Benchmarking Open-Weights LLMs on the MacBook Pro M5 Max" (Medium) — fetchable but paywalled beyond the intro; confirmed intro benchmarks the binned 32-core/460 GB/s M5 Max SKU, not this doc's 40-core/614 GB/s target — low value even if fully accessible.*
 
-### Ornith-1.0
+### Ornith-1.5 (current top/smaller code-implementer picks)
+- [Ornith-1.5: From Self-Scaffolding to Self-Improvement — Ornith Blog](https://ornith.ai/ornith_1_5.html) (primary — methodology, self-improvement loop description)
+- [ornith-ai/Ornith-1.5-35B-A3B — Hugging Face](https://huggingface.co/ornith-ai/Ornith-1.5-35B-A3B) (primary — **fetched directly 2026-08-21**: SWE-bench Verified 79.0%, 35B/~3B active MoE, MIT, 262K ctx extensible to ~1M via YaRN)
+- [ornith-ai/Ornith-1.5-9B — Hugging Face](https://huggingface.co/ornith-ai/Ornith-1.5-9B) (primary — **fetched directly 2026-08-21**: SWE-bench Verified 70.6%, Terminal-Bench 2.1 46.2–47.0, 9B, MIT, 262K ctx)
+- [Ornith-1.5 35B-A3B Benchmarks: How It Stacks Up Against Qwen3.6 — MindStudio](https://www.mindstudio.ai/blog/ornith-1-5-35b-a3b-benchmarks) (secondary)
+- [Ornith-1.5 open models launch in 397B, 35B, and 9B sizes — TestingCatalog](https://www.testingcatalog.com/ornith-1-5-open-models-launch-in-397b-35b-and-9-b-sizes/) (secondary — confirms self-reported-only, no third-party reproduction yet)
+- [DeepReinforce Releases Open-Source Ornith 1.5 Family — officechai](https://officechai.com/ai/deepreinforce-releases-open-source-orinth-1-5-family-of-models-with-solid-benchmarks-and-mit-license/) (secondary)
+
+### Ornith-1.0 (beaten this cycle, still valid alternatives)
 - [Ornith-1.0: Self-Scaffolding LLMs for Agentic Coding — DeepReinforce/Ornith Blog](https://ornith.ai/ornith_1_0.html) (primary — 75.6% SWE-bench Verified for 35B, methodology stated)
 - [deepreinforce-ai/Ornith-1.0-35B — Hugging Face](https://huggingface.co/deepreinforce-ai/Ornith-1.0-35B) (primary — architecture and score confirmed)
 - [deepreinforce-ai/Ornith-1.0-35B-GGUF — Hugging Face](https://huggingface.co/deepreinforce-ai/Ornith-1.0-35B-GGUF) (primary)
@@ -597,6 +650,7 @@ ollama run gemma4:26b "Extract all column headers and row values from this table
 - [nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4 — Hugging Face](https://huggingface.co/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-NVFP4) (primary — 52.80% SWE-bench Verified, full benchmark table)
 - [Introducing NVIDIA Nemotron 3.5 Lightning — Baseten Blog](https://www.baseten.co/blog/introducing-nemotron-35-lightning/) (secondary/partner — throughput claims)
 - [NVIDIA Developer Blog — Nemotron 3.5 Lightning](https://developer.nvidia.com/blog/nvidia-nemotron-3-5-lightning-delivers-fast-accurate-specialized-task-execution-for-long-running-agents/) (primary)
+- [NVIDIA launches Nemotron 3.5 Lightning — Artificial Analysis](https://artificialanalysis.ai/articles/nemotron-3-5-lightning-launch) (secondary — Intelligence Index 24, Elo 824 on agentic benchmarks; new this cycle, doesn't change the SWE-bench-based verdict — see §2/§3.2)
 
 ### DeepSeek
 - [DeepSeek V4-Flash coverage — Caixin Global](https://www.caixinglobal.com/2026-08-01/deepseek-releases-official-v4-flash-model-as-chinas-ai-race-intensifies-102470292.html) (secondary)
@@ -608,10 +662,12 @@ ollama run gemma4:26b "Extract all column headers and row values from this table
 
 ### Qwen Models
 - [Qwen3.6-27B Tags — Ollama](https://ollama.com/library/qwen3.6/tags) (primary)
-- [Qwen3.8-Max Open Weights Are Live — explainx.ai](https://www.explainx.ai/blog/qwen3-8-max-open-weights-live-hugging-face-august-2026) (secondary — confirms 2026-08-12 HF release of the 2.4T base model)
-- [Qwen3.8-27B Open Weights: Max Shipped, 27B Delayed — orcarouter.ai](https://www.orcarouter.ai/blog/qwen-3-8-27b-open-weights-leak) (secondary — confirms the size-comparable 27B companion has not shipped as of 2026-08-15; the model tracked in §2's "Pending Releases")
-- [Qwen3.8-Max Open Weights Countdown — Neomanex](https://neomanex.com/news/qwen38-max-open-weights-countdown-aug-2026) (secondary)
-- [ollama.com/library/qwen3.8-max](https://ollama.com/library/qwen3.8-max) — re-confirmed 404, no Ollama tag exists as of 2026-08-15 (primary)
+- [Qwen/Qwen3.8-27B — Hugging Face](https://huggingface.co/Qwen/Qwen3.8-27B) (primary — model card, SWE-bench Pro 61.7%, Terminal-Bench 2.1 73.0%, OSWorld-Verified 84.3%; **no SWE-bench Verified score published** — see §3.1)
+- [Qwen3.8-27B Tags — Ollama](https://ollama.com/library/qwen3.8/tags) (primary — **fetched 2026-08-21**, confirmed `27b`/`q4_K_M` 18 GB)
+- [Qwen 3.8 27B vs Qwen 3.6 27B: Same Architecture, 4 Months Apart — DEV Community](https://dev.to/jamilxt/qwen-38-27b-vs-qwen-36-27b-same-architecture-4-months-apart-and-a-different-kind-of-upgrade-3280) (secondary — source of the "overthinking"/`reasoning_effort=xhigh` field reports and side-by-side benchmark deltas cited in §3.1/§2)
+- [Qwen3.8-27B: Specs, Benchmarks & Verdict — kingy.ai](https://kingy.ai/blog/qwen3-8-27b-specs-benchmarks-local-hardware/) (secondary)
+- [Qwen3.8-27B Performance, benchmarks, GPU requirements — Northflank](https://northflank.com/blog/qwen3-8-27b-performance-benchmarks-gpu-requirements-and-how-to-run-it) (secondary — corroborates benchmark figures as Alibaba's own)
+- [Qwen3.8-Max Open Weights Are Live — explainx.ai](https://www.explainx.ai/blog/qwen3-8-max-open-weights-live-hugging-face-august-2026) (secondary — confirms 2026-08-12 HF release of the 2.4T base model, architecturally irrelevant to this doc)
 
 ### Laguna XS 2.1
 - [poolside/Laguna-XS-2.1 — Hugging Face](https://huggingface.co/poolside/Laguna-XS-2.1) (primary)
@@ -633,12 +689,21 @@ ollama run gemma4:26b "Extract all column headers and row values from this table
 - [SWE-bench Verified Leaderboard — BenchLM.ai](https://benchlm.ai/benchmarks/sweVerified) (secondary)
 - [RewardBench 2: ICLR 2026 Paper](https://arxiv.org/pdf/2506.01937) (primary — no fresher judge-benchmark data found)
 
-### GLM-5.2 / Z.ai, MiniMax M3, Mistral, Devstral, Cohere
+### GLM-5.3 / Z.ai, MiniMax M3, Mistral, Devstral, Cohere
+- [Z.ai Ships GLM-5.3 Without Retraining the Base Model — MarkTechPost](https://www.marktechpost.com/2026/08/14/z-ai-ships-glm-5-3-without-retraining-the-base-model-better-at-complex-coding-and-long-horizon-tasks/) (secondary — confirms unchanged 743B/40B active base, weights not yet public as of 2026-08-21)
+- [Z.ai Launches GLM-5.3 With Frontier Coding — Unite.AI](https://www.unite.ai/z-ai-launches-glm-5-3-with-frontier-coding-and-a-cyber-capability-that-outgrew-its-training/) (secondary)
+- [zai-org/GLM-5.2 architecture reference — vLLM recipes](https://recipes.vllm.ai/zai-org/GLM-5.2) (primary-adjacent — 743B total/39B active confirmed, basis for GLM-5.3's unchanged-base arithmetic)
 - [Run GLM-5.2 Locally — GLM5.app](https://glm5.app/blog/how-to-run-glm-5-2-locally)
 - [MiniMax M3 Open Weights — Nerova](https://nerova.ai/news/minimax-m3-open-weight-agent-builders-june-2026)
 - [mistral-medium-3.5:128b — Ollama](https://ollama.com/library/mistral-medium-3.5) (primary)
 - [Devstral Small 2 — Ollama](https://ollama.com/library/devstral-small-2) (primary)
 - [Meet North Mini Code — MarkTechPost](https://www.marktechpost.com/2026/06/11/meet-north-mini-code-coheres-30b-open-weight-mixture-of-experts-model-with-3b-active-parameters-for-agentic-coding/)
+
+### Llama 5 / Meta (checked, excluded — see §1)
+- [Meta Releases Llama 5: 600B Parameters, 5M Token Context — RAGyfied](https://ragyfied.com/articles/meta-llama-5-released) (secondary — confirms ~600B MoE, 5M-token context, no smaller "Scout"-class sibling found)
+
+### DeepSeek R2 (checked, not a real release)
+- Multiple secondary sources (decodethefuture.org, felloai.com, layer3labs.io) describe DeepSeek R2 as **rumored/unreleased as of this window** — "no official R2 announcement, no R2 entry in DeepSeek's API, no official model card." Treated as speculation, not a candidate. What DeepSeek actually shipped in this window is V4-Flash/V4 Pro, already tracked above.
 
 ### Reference
 - [Ollama VRAM Requirements 2026 — Local AI Master](https://localaimaster.com/blog/ollama-model-ram-vram-table)
