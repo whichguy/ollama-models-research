@@ -26,38 +26,24 @@ bandwidth), across 7 agentic roles. Refreshed roughly every 10 days (the
 
 ## 📌 Latest refresh
 
-**2026-08-11** — 1 role pick changed. Code-implementer's **top pick** moved
-from Laguna XS 2.1 (70.9% SWE-bench Verified) to **Ornith-1.0-35B**
-(deepreinforce-ai, MoE 35B/~3B active, 75.6% SWE-bench Verified — score
-newly confirmed against primary + independent secondary sources this cycle,
-was `[unverified]` and not promoted last cycle). Comparable resident size
-(~21 GB vs ~20 GB) and comparable-or-better M5 Max throughput per fresh
-oMLX benchmark data, so the higher score isn't bought with materially worse
-latency. Laguna XS 2.1 remains a fully valid alternative with a longer
-field track record. All 6 other role picks unchanged. Two brand-new
-releases from this window — Meta's Muse Glimmer (dense 30B, Aug 10) and
-NVIDIA's Nemotron 3.5 Lightning (30B-A3B MoE, Aug 11) — were evaluated and
-explicitly **not** promoted: both are less than 48 hours old at time of
-writing with no field track record, and neither cleanly beats a current
-pick on this doc's headline benchmark. See
-[`ollama-models.md`](./ollama-models.md) for full detail, including the
-arithmetic-gate flag on Nemotron 3.5 Lightning's listed quantized size.
-
-**Interim fact-check, 2026-08-15 (0 picks changed):** Qwen3.8-Max's 2.4T-param
-open weights shipped 2026-08-12, but that model is ~1.2+ TB at Q4 and was
-never a viable local candidate. The size-comparable companion that would
-actually matter, Qwen3.8-27B, still hasn't shipped — now tracked in a new
-"Pending Releases" watchlist in `ollama-models.md` §2 so it's re-checked
-automatically every cycle instead of only when asked about. Also
-re-confirmed DeepSeek V4-Flash and V4 Pro (GA 2026-08-12) as cloud-only by
-Ollama's own tag listing, not just by size arithmetic.
-
-**Process note, 2026-08-15 (0 picks changed):** added `TRIGGER_PROMPT.md` — a
-corrected, checked-in replacement for the *external* scheduled trigger's
-stored prompt, which still referenced the retired per-month file convention
-and had no instruction to read this repo's own governance docs first. No
-in-session tool can apply it directly (confirmed — see `OPERATIONS.md` §10);
-it's staged for a human operator to paste into the trigger config manually.
+**2026-09-01** — 4 role-pick lines changed, all one event: **Qwen3.8-27B**
+shipped (Alibaba, Aug 14, dense 27B, Apache 2.0, `qwen3.8:27b`, ~18 GB Q4) —
+the resolution of the "Pending Releases" watchlist item tracked since
+2026-08-15. It's the direct successor to Qwen3.6-27B at the same footprint,
+beating it on every benchmark both cards report (GPQA Diamond 89.2 vs 87.8,
+LiveCodeBench v6 90.3 vs 83.9, SWE-bench Pro 61.7 vs 53.5 — it doesn't report
+SWE-bench Verified, so that's used as the headline metric instead). Promoted
+to **generalist top pick**, **judge top pick**, **code-debugger smaller
+pick**, and **plan-orchestrator smaller pick** — replacing Qwen3.6-27B in
+all four. Code-implementer, document-understanding, and vision are
+unchanged (no challenger beat Ornith-1.0-35B/9B, Gemma 4 26B MoE, or
+Llama 4 Scout this cycle). Several large-MoE releases from late August
+(Tencent Hy4 Preview 770B, Z.ai GLM-5.3-Flash 320B, Qwen3.8-Flash-Next 176B)
+were evaluated and **not** promoted — the first two don't fit 128 GB at
+all, and Qwen3.8-Flash-Next, while it technically clears the size ceiling
+at 105 GB, is an "experimental preview" with no comparative benchmark data
+yet. See [`ollama-models.md`](./ollama-models.md) for full detail,
+including the arithmetic checks and verification-gate notes on each.
 
 *(This section must be updated by every refresh commit — research or
 process-only — with the date and a 1–3 line summary. See the "README sync
