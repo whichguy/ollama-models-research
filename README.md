@@ -26,24 +26,23 @@ bandwidth), across 7 agentic roles. Refreshed roughly every 10 days (the
 
 ## 📌 Latest refresh
 
-**2026-09-01** — 4 role-pick lines changed, all one event: **Qwen3.8-27B**
-shipped (Alibaba, Aug 14, dense 27B, Apache 2.0, `qwen3.8:27b`, ~18 GB Q4) —
-the resolution of the "Pending Releases" watchlist item tracked since
-2026-08-15. It's the direct successor to Qwen3.6-27B at the same footprint,
-beating it on every benchmark both cards report (GPQA Diamond 89.2 vs 87.8,
-LiveCodeBench v6 90.3 vs 83.9, SWE-bench Pro 61.7 vs 53.5 — it doesn't report
-SWE-bench Verified, so that's used as the headline metric instead). Promoted
-to **generalist top pick**, **judge top pick**, **code-debugger smaller
-pick**, and **plan-orchestrator smaller pick** — replacing Qwen3.6-27B in
-all four. Code-implementer, document-understanding, and vision are
-unchanged (no challenger beat Ornith-1.0-35B/9B, Gemma 4 26B MoE, or
-Llama 4 Scout this cycle). Several large-MoE releases from late August
-(Tencent Hy4 Preview 770B, Z.ai GLM-5.3-Flash 320B, Qwen3.8-Flash-Next 176B)
-were evaluated and **not** promoted — the first two don't fit 128 GB at
-all, and Qwen3.8-Flash-Next, while it technically clears the size ceiling
-at 105 GB, is an "experimental preview" with no comparative benchmark data
-yet. See [`ollama-models.md`](./ollama-models.md) for full detail,
-including the arithmetic checks and verification-gate notes on each.
+**2026-09-11** — **0 role-pick lines changed** (previous state: commit
+`ebab18c`, 2026-09-01). A quiet but genuinely researched cycle: Ollama moved
+to stable **v0.33.3** (Sep 3) with a **v0.34.0-rc1** pre-release (Sep 5,
+ChatGPT Desktop integration, Gemma 4 MLX image/audio chat); a new
+code-implementer challenger, **OpenSWE-72B** (GAIR-NLP, 66–68% SWE-bench
+Verified), was evaluated and rejected — it scores below both current picks
+and has no confirmed Ollama tag; last cycle's open **Muse Glimmer vs.
+Qwen3.8-27B** comparison was re-run and closed out (Qwen3.8-27B wins 8/8
+compared benchmarks); two new large-MoE releases (**GLM-5.3** full flagship,
+744B/40B active, and **MiniMax H3**, ~465B/30B active) joined the
+"doesn't fit 128 GB" table by arithmetic; and re-verification against the
+live Ollama tags pages caught a small drift — `gemma4:26b` now resolves at
+**19 GB**, not 18 GB. Qwen 4, DeepSeek V5, and a rumored "Kimi K4" were all
+checked and found to be unconfirmed leaks, not actual vendor promises — none
+added to the Pending Releases watchlist, which remains empty. See
+[`ollama-models.md`](./ollama-models.md) for full detail, including the
+arithmetic checks and verification-gate notes on each.
 
 *(This section must be updated by every refresh commit — research or
 process-only — with the date and a 1–3 line summary. See the "README sync
