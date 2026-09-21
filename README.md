@@ -26,21 +26,21 @@ bandwidth), across 7 agentic roles. Refreshed roughly every 10 days (the
 
 ## 📌 Latest refresh
 
-**2026-09-11** — **0 role-pick lines changed** (previous state: commit
-`ebab18c`, 2026-09-01). A quiet but genuinely researched cycle: Ollama moved
-to stable **v0.33.3** (Sep 3) with a **v0.34.0-rc1** pre-release (Sep 5,
-ChatGPT Desktop integration, Gemma 4 MLX image/audio chat); a new
-code-implementer challenger, **OpenSWE-72B** (GAIR-NLP, 66–68% SWE-bench
-Verified), was evaluated and rejected — it scores below both current picks
-and has no confirmed Ollama tag; last cycle's open **Muse Glimmer vs.
-Qwen3.8-27B** comparison was re-run and closed out (Qwen3.8-27B wins 8/8
-compared benchmarks); two new large-MoE releases (**GLM-5.3** full flagship,
-744B/40B active, and **MiniMax H3**, ~465B/30B active) joined the
-"doesn't fit 128 GB" table by arithmetic; and re-verification against the
-live Ollama tags pages caught a small drift — `gemma4:26b` now resolves at
-**19 GB**, not 18 GB. Qwen 4, DeepSeek V5, and a rumored "Kimi K4" were all
-checked and found to be unconfirmed leaks, not actual vendor promises — none
-added to the Pending Releases watchlist, which remains empty. See
+**2026-09-21** — **1 role-pick line changed** (previous state: commit
+`a6004f4`, 2026-09-11). The headline finding: **Ornith-1.5-35B / Ornith-1.5-9B**
+(DeepReinforce/Ornith, MIT, shipped Aug 19 2026, now multimodal) displace the
+1.0-generation as the code-implementer top and smaller picks — 79%/70.6%
+SWE-bench Verified vs. 75.6%/69.4%, with confirmed Ollama tags
+(`ornith-1.5:35b` 23 GB, `ornith-1.5:9b` 6.6 GB) under a separate model slug
+from the still-valid `ornith` (1.0) tags. All 6 other role picks are
+unchanged. Ollama's stable release advanced three point versions
+(**v0.34.0 → v0.34.1 → v0.34.2**, Sep 5–15; v0.34.3 in pre-release Sep 19) with
+no inference-path impact on any pick. Mistral OCR reached **4.1** (GA, still
+not Ollama-loadable, no pick change). Qwen 4, DeepSeek V5, and Kimi K4 were
+re-checked and remain unconfirmed rumors — Qwen 4 is flagged to watch at the
+Sep 22–24 Apsara Conference next cycle, but not added to the still-empty
+Pending Releases watchlist. Live re-verification against Ollama's own tags
+pages found no drift on any other current pick. See
 [`ollama-models.md`](./ollama-models.md) for full detail, including the
 arithmetic checks and verification-gate notes on each.
 
