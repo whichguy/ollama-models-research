@@ -26,24 +26,25 @@ bandwidth), across 7 agentic roles. Refreshed roughly every 10 days (the
 
 ## 📌 Latest refresh
 
-**2026-10-01** — **No role picks changed** (previous state: commit `a1efad2`,
-2026-09-21). The headline finding: **Qwen 4** was previewed (not shipped) at
-Alibaba's Sep 22 Apsara Conference — four tiers named (Max/Plus/Flash/27B),
-confirmed in training, no date/weights/benchmarks. This is the first model
-promoted to the **Pending Releases watchlist** since it was created
-2026-08-15: **Qwen 4 27B** would directly challenge Qwen3.8-27B in 4 of 7
-roles if it ships competitively, but doesn't yet clear this doc's
-verification gates. DeepSeek V5 and "Kimi K4" remain unconfirmed rumors,
-re-checked and not added. Three new cloud-only MoE releases
-(DeepSeek-V4.1-Flash, MiniMax H3 Max, MiniMax M3.1-Flash-Preview) and IBM's
-new Granite 4.2 (no benchmark data found) were evaluated and excluded.
-Ollama's stable release advanced to **v0.35.0** (Sep 28) via v0.34.3/v0.34.4;
-an experimental **v0.40.0** pre-release track now runs MLX-supported
-architectures on MLX by default on Apple Silicon — not yet stable, not
-re-measured. Live re-verification against Ollama's own tags pages found no
-drift on any current pick. See [`ollama-models.md`](./ollama-models.md) for
-full detail, including the arithmetic checks and verification-gate notes on
-each.
+**2026-10-11** — **No role picks changed** (previous state: commit `787ba85`,
+2026-10-01) — the Ornith-1.5/Qwen3.8-27B stack now has 20 days unchallenged.
+The headline finding is operational, not a model swap: **Ollama's
+MLX-by-default track (v0.40.0 → v0.40.3) reached stable**, confirmed via
+direct fetch of the GitHub releases page — it's no longer the experimental
+preview flagged last cycle, and Gemma 4 / Qwen 3.5 / Qwen 3.6 (Qwen 3.8 via
+its existing `-mlx` tag) no longer need an explicit MLX-tagged pull to get
+the MLX-path throughput; not yet re-measured. **Mistral Large 4** (1.05T
+total/49B active MoE, Oct 6 API preview) was evaluated and excluded —
+`mistral-large-4:cloud` only on Ollama, ~591 GB at Q4, well past the
+envelope even once open weights ship. **IBM Granite 4.2** gained benchmark
+numbers this cycle (IBM's own 57.00%/47.67% SWE-bench Verified for 30B/8B),
+clearing last cycle's `[unverified]` flag but still scoring below every
+current code-implementer pick. **Qwen 4 27B** (Pending Releases watchlist)
+re-checked, still unshipped; DeepSeek V5 and "Kimi K4" re-checked, still
+unconfirmed rumors. Live re-verification against Ollama's own tags pages
+found no drift on any current pick. See
+[`ollama-models.md`](./ollama-models.md) for full detail, including the
+arithmetic checks and verification-gate notes on each.
 
 *(This section must be updated by every refresh commit — research or
 process-only — with the date and a 1–3 line summary. See the "README sync
