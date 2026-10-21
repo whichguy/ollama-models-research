@@ -26,25 +26,26 @@ bandwidth), across 7 agentic roles. Refreshed roughly every 10 days (the
 
 ## 📌 Latest refresh
 
-**2026-10-11** — **No role picks changed** (previous state: commit `787ba85`,
-2026-10-01) — the Ornith-1.5/Qwen3.8-27B stack now has 20 days unchallenged.
-The headline finding is operational, not a model swap: **Ollama's
-MLX-by-default track (v0.40.0 → v0.40.3) reached stable**, confirmed via
-direct fetch of the GitHub releases page — it's no longer the experimental
-preview flagged last cycle, and Gemma 4 / Qwen 3.5 / Qwen 3.6 (Qwen 3.8 via
-its existing `-mlx` tag) no longer need an explicit MLX-tagged pull to get
-the MLX-path throughput; not yet re-measured. **Mistral Large 4** (1.05T
-total/49B active MoE, Oct 6 API preview) was evaluated and excluded —
-`mistral-large-4:cloud` only on Ollama, ~591 GB at Q4, well past the
-envelope even once open weights ship. **IBM Granite 4.2** gained benchmark
-numbers this cycle (IBM's own 57.00%/47.67% SWE-bench Verified for 30B/8B),
-clearing last cycle's `[unverified]` flag but still scoring below every
-current code-implementer pick. **Qwen 4 27B** (Pending Releases watchlist)
-re-checked, still unshipped; DeepSeek V5 and "Kimi K4" re-checked, still
-unconfirmed rumors. Live re-verification against Ollama's own tags pages
-found no drift on any current pick. See
-[`ollama-models.md`](./ollama-models.md) for full detail, including the
-arithmetic checks and verification-gate notes on each.
+**2026-10-21** — **No role picks changed** (previous state: commit `c0edaa9`,
+2026-10-11) — the Ornith-1.5/Qwen3.8-27B stack now has 30 days unchallenged.
+Three brand-new models shipped to Ollama's library this cycle and were
+evaluated against the roles they'd most plausibly threaten, none promoted:
+**NVIDIA Nemotron 3.5 Super VL** (120B/12B active MoE VLM, 90 GB Q4, 71.1%
+SWE-bench Verified — below Ornith-1.5-35B's 79% at ~4× the size) and **Bolt**
+(74B/9B active, 25 GB, lowest Intelligence Index of any model checked this
+cycle), plus **Perplexity's pplx-decider-v1.1-27b** — a purpose-built
+judge/decision model (17 GB, fine-tune of Qwen3.8-27B) architecturally
+well-matched to the judge role but `[unverified]`: its only benchmark is an
+undisclosed-methodology internal panel, with no RewardBench score or
+head-to-head against Qwen3.8-27B. A genuinely new **directly-measured** M5
+Max figure for Qwen3.8-27B (36.6/68.0 tok/s, GGUF/MLX) replaces last cycle's
+extrapolated estimate. **Mistral Large 4** open weights still not shipped as
+of 2026-10-21 (promised "end of October"); doesn't change the cloud-only
+verdict either way. **Qwen 4 27B** (Pending Releases watchlist) re-checked,
+still unshipped; DeepSeek V5 and "Kimi K4" re-checked, still unconfirmed
+rumors. Live re-verification against Ollama's own tags pages found no drift
+on any current pick. See [`ollama-models.md`](./ollama-models.md) for full
+detail, including the arithmetic checks and verification-gate notes on each.
 
 *(This section must be updated by every refresh commit — research or
 process-only — with the date and a 1–3 line summary. See the "README sync
